@@ -1,239 +1,276 @@
-using System.Collections;
+using System;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Movement : MonoBehaviour
 {
-    public float walkSpeed = 5f;
-    public float runSpeed = 8f;
-    public float slideSpeed = 12f;
-    public float wallRunSpeed = 10f;
-    public float jumpForce = 7f;
-    public float slideJumpForce = 10f;
+    [Header("Movement")]
+    public float moveSpeed = 15;
+    public float jumpSpeed = 20;
+    public float gravity = 25;
+    public float doubleJumpSpeed = 25;
+    public float movementMultiplier = 2;
+    public bool canJump;
+    public bool canDoubleJump;
 
-    public float wallRunDuration = 1.5f;
-    public float slideDuration = 0.8f;
+    public float airMultiplier = 1;
 
-    public float mouseSensitivity = 100f;
-    public float wallRunPushForce = 5f;
-    public float wallTiltAngle = 5f;
+    private float horizontalMovement;
+    private float verticalMovement;
 
-    public float slideCameraHeight = 0.5f;
-    private float normalCameraHeight;
+    private bool isGrounded;
+
+    private Vector3 moveDirection;
 
     private Rigidbody rb;
-    private bool isSliding = false;
-    private bool isWallRunning = false;
-    private bool canDoubleJump = true;
 
-    private float xRotation = 0f;
+    float groundDistance = 0.4f;
 
-    public Text movementInfoText;
+    [Header("Wall Run")] 
+    public float wallMoveSpeed = 15;
+    public float wallPullForce = 500;
+    public float wallDistance = 3;
+    public float wallRunGravity = 0.2f;
+    public bool isWallRunning;
+    public float wallRunJumpForceX = 1200, wallRunJumpForceY = 800;
+    private Vector3 wallRunDirection;
+    private Transform currentWall;
+    private bool wallLeft, wallRight;
+    private RaycastHit leftWallHit, rightWallHit;
+    private bool pulledToTheWall;
+    private bool materialTurnedOriginal;
 
-    public GameObject throwableObject; // coin
-    public float throwForce = 15f;
+    [Header("Camera")] public Camera cam;
+    public float camTilt;
+    public float camTiltTime;
+
+    public float wallRunTilt;
+
+    [Header("LayerMasks")] public LayerMask wallMask;
+    public LayerMask groundMask;
+
+    [Header("Materials")] public Material blackMaterial;
+    public Material greenMaterial;
 
     private void Start()
     {
+        canJump = true;
+
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
-
-        // Lock and hide the cursor
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-
-        // Store the initial camera height
-        normalCameraHeight = Camera.main.transform.localPosition.y;
     }
 
     private void Update()
     {
-        Move();
-        LookAround();
-        // Coin
-        if (Input.GetKeyDown(KeyCode.G))
+        Debug.DrawRay(transform.position, transform.right * wallDistance, Color.green);
+        Debug.DrawRay(transform.position, -transform.right * wallDistance, Color.red);
+
+        isGrounded = Physics.CheckSphere(transform.position - new Vector3(0, 1, 0), groundDistance, groundMask);
+
+        HandleInput();
+
+        var jumpPressed = Input.GetKeyDown(KeyCode.Space);
+        if (jumpPressed && isGrounded)
         {
-            ThrowObject();
+            Jump();
+        }
+        else if (jumpPressed && canDoubleJump)
+        {
+            DoubleJump();
         }
 
-        // Sliding
-        if (Input.GetKeyDown(KeyCode.LeftControl) && !isSliding)
-        {
-            StartCoroutine(Slide());
-        }
 
-        if (Input.GetKeyUp(KeyCode.LeftControl) && isSliding)
-        {
-            StopSliding();
-        }
+        WallRunning();
+    }
 
-        // Wall Running
-        if (IsTouchingWall() && Input.GetKey(KeyCode.Space) && !isWallRunning)
-        {
-            StartCoroutine(WallRun());
-        }
+    private void FixedUpdate()
+    {
+        //  Adding custom gravity
+        MovePlayer();
+        Gravity();
+    }
 
-        if (Input.GetKeyUp(KeyCode.Space) && isWallRunning)
+    private void Gravity()
+    {
+        if (!isWallRunning)
+        {
+            rb.AddForce(new Vector3(0, -gravity, 0) * rb.mass);
+        }
+    }
+
+    #region Wall Run
+
+    private void WallRunning()
+    {
+        CheckWall();
+        if (CanWallRun())
+        {
+            if (wallLeft || wallRight)
+            {
+                WallRun();
+            }
+            else
+            {
+                StopWallRun();
+            }
+        }
+        else
         {
             StopWallRun();
         }
-
-        UpdateMovementInfo();
     }
 
-    void Move()
+    private void CheckWall()
     {
-        float speed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;
-        if (isSliding) speed = slideSpeed;
-        if (isWallRunning) speed = wallRunSpeed;
-
-        float moveX = Input.GetAxis("Horizontal");
-        float moveZ = Input.GetAxis("Vertical");
-
-        Vector3 move = transform.right * moveX + transform.forward * moveZ;
-        rb.velocity = new Vector3(move.x * speed, rb.velocity.y, move.z * speed);
-
-        if (Input.GetButtonDown("Jump"))
-        {
-            if (IsGrounded())
-            {
-                rb.velocity = new Vector3(rb.velocity.x, isSliding ? slideJumpForce : jumpForce, rb.velocity.z);
-                canDoubleJump = true;
-            }
-            else if (canDoubleJump)
-            {
-                rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
-                canDoubleJump = false;
-            }
-        }
+        wallLeft = Physics.Raycast(transform.position, -transform.right, out leftWallHit, wallDistance, wallMask);
+        wallRight = Physics.Raycast(transform.position, transform.right, out rightWallHit, wallDistance, wallMask);
     }
 
-    void LookAround()
+    private void WallRun()
     {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        //rb.useGravity = false;
+        rb.AddForce(Vector3.down * wallRunGravity, ForceMode.Force);
 
-        xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-
-        Camera.main.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-        transform.Rotate(Vector3.up * mouseX);
-    }
-
-    IEnumerator Slide()
-    {
-        isSliding = true;
-
-        // Lower the camera
-        Camera.main.transform.localPosition = new Vector3(Camera.main.transform.localPosition.x, slideCameraHeight, Camera.main.transform.localPosition.z);
-
-        // Remove friction while sliding
-        PhysicMaterial slideMaterial = new PhysicMaterial { frictionCombine = PhysicMaterialCombine.Minimum, dynamicFriction = 0f, staticFriction = 0f };
-        GetComponent<Collider>().material = slideMaterial;
-
-        float slideTime = 0f;
-        while (slideTime < slideDuration && Input.GetKey(KeyCode.LeftControl))
-        {
-            rb.velocity = transform.forward * slideSpeed + Vector3.up * rb.velocity.y;
-            slideTime += Time.deltaTime;
-            yield return null;
-        }
-
-        StopSliding();
-    }
-
-    void StopSliding()
-    {
-        // Stop sliding and reset everything
-        isSliding = false;
-        Camera.main.transform.localPosition = new Vector3(Camera.main.transform.localPosition.x, normalCameraHeight, Camera.main.transform.localPosition.z);
-
-        // Restore friction
-        GetComponent<Collider>().material = null;
-    }
-    IEnumerator WallRun()
-    {
         isWallRunning = true;
-        canDoubleJump = true; // Reset double jump on wall run
 
-        Vector3 wallDirection = GetWallDirection();
-        bool isRightWall = wallDirection == transform.right;
-
-        float timer = 0f;
-
-        while (timer < wallRunDuration && IsTouchingWall())
+        if (wallLeft)
         {
-            rb.velocity = new Vector3(wallDirection.x * wallRunSpeed, 0, wallDirection.z * wallRunSpeed);
-
-            // Push player slightly towards the wall
-            rb.AddForce(transform.forward * wallRunPushForce, ForceMode.Force);
-
-            // Tilt the camera
-            float tilt = isRightWall ? wallTiltAngle : -wallTiltAngle;
-            Camera.main.transform.localRotation = Quaternion.Euler(xRotation, 0f, tilt);
-
-            if (Input.GetAxis("Vertical") <= 0)
+            if (!pulledToTheWall)
             {
-                rb.velocity += transform.right * (isRightWall ? -wallRunPushForce : wallRunPushForce);
-                break;
+                pulledToTheWall = true;
+
+                currentWall = leftWallHit.transform;
+
+                ChangeMaterials(currentWall.GetComponent<MeshRenderer>(), greenMaterial);
+                materialTurnedOriginal = false;
+
+                Debug.Log("Left Normal X: " + leftWallHit.normal.x);
+                if (leftWallHit.normal.x > 0)
+                {
+                    rb.AddForce(new Vector3(-wallPullForce, 0, 0));
+                    wallRunDirection = leftWallHit.transform.forward;
+                }
+                else
+                {
+                    rb.AddForce(new Vector3(wallPullForce, 0, 0));
+                    wallRunDirection = -leftWallHit.transform.forward;
+                }
             }
 
-            timer += Time.deltaTime;
-            yield return null;
+            wallRunTilt = Mathf.Lerp(wallRunTilt, -camTilt, camTiltTime * Time.deltaTime);
         }
-
-        isWallRunning = false;
-
-        // Reset camera tilt
-        Camera.main.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-    }
-
-    void StopWallRun()
-    {
-        // Stop wall running and reset everything
-        isWallRunning = false;
-
-        // Reset camera tilt
-        Camera.main.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-    }
-
-    void UpdateMovementInfo()
-    {
-        string movementType = "Walking";
-        if (isSliding) movementType = "Sliding";
-        else if (isWallRunning) movementType = "Wall Running";
-        else if (Input.GetKey(KeyCode.LeftShift)) movementType = "Running";
-
-        movementInfoText.text = $"Speed: {rb.velocity.magnitude:F1}\nMovement: {movementType}";
-    }
-
-    Vector3 GetWallDirection()
-    {
-        if (Physics.Raycast(transform.position, transform.right, 1f)) return transform.right;
-        if (Physics.Raycast(transform.position, -transform.right, 1f)) return -transform.right;
-        return Vector3.zero;
-    }
-
-    bool IsTouchingWall()
-    {
-        return GetWallDirection() != Vector3.zero;
-    }
-
-    bool IsGrounded()
-    {
-        return Physics.Raycast(transform.position, Vector3.down, 1.1f);
-    }
-
-    void ThrowObject()
-    {
-        if (throwableObject == null) return;
-
-        GameObject thrownObject = Instantiate(throwableObject, transform.position + transform.forward, Quaternion.identity);
-
-        Rigidbody thrownRb = thrownObject.GetComponent<Rigidbody>();
-        if (thrownRb != null)
+        else if (wallRight)
         {
-            thrownRb.AddForce(Camera.main.transform.forward * throwForce, ForceMode.Impulse);
+            if (!pulledToTheWall)
+            {
+                pulledToTheWall = true;
+                currentWall = rightWallHit.transform;
+
+                ChangeMaterials(currentWall.GetComponent<MeshRenderer>(), greenMaterial);
+                materialTurnedOriginal = false;
+
+                if (rightWallHit.normal.x > 0)
+                {
+                    rb.AddForce(new Vector3(-wallPullForce, 0, 0));
+                    wallRunDirection = -rightWallHit.transform.forward;
+                }
+                else
+                {
+                    rb.AddForce(new Vector3(wallPullForce, 0, 0));
+                    wallRunDirection = rightWallHit.transform.forward;
+                }
+            }
+
+            wallRunTilt = Mathf.Lerp(wallRunTilt, camTilt, camTiltTime * Time.deltaTime);
+        }
+
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Vector3 wallRunJumpDirection = transform.up + leftWallHit.normal;
+            if (wallLeft)
+            {
+                wallRunJumpDirection = transform.up + leftWallHit.normal;
+            }
+            else if (wallRight)
+            {
+                wallRunJumpDirection = transform.up + rightWallHit.normal;
+            }
+
+            canDoubleJump = true;
+            rb.AddForce(new Vector3(wallRunJumpDirection.x * wallRunJumpForceX, wallRunJumpDirection.y * wallRunJumpForceY), ForceMode.Force);
         }
     }
+
+    private void StopWallRun()
+    {
+        if (currentWall != null && !materialTurnedOriginal)
+        {
+            materialTurnedOriginal = true;
+            ChangeMaterials(currentWall.GetComponent<MeshRenderer>(), blackMaterial);
+        }
+
+        isWallRunning = false;
+        pulledToTheWall = false;
+        wallRunTilt = Mathf.Lerp(wallRunTilt, 0, camTiltTime * Time.deltaTime);
+    }
+
+    private bool CanWallRun()
+    {
+        return true;
+    }
+
+    #endregion
+
+    void Jump()
+    {
+        if (canJump && !isWallRunning)
+        {
+            canDoubleJump = true;
+            rb.velocity = new Vector3(rb.velocity.x, jumpSpeed, rb.velocity.z);
+        }
+    }
+
+    void DoubleJump()
+    {
+        if (canDoubleJump && !isWallRunning)
+        {
+            canDoubleJump = false;
+            rb.velocity = new Vector3(rb.velocity.x, doubleJumpSpeed, rb.velocity.z);
+        }
+    }
+
+    private void MovePlayer()
+    {
+        if (isGrounded)
+        {
+            rb.AddForce(moveDirection.normalized * moveSpeed * movementMultiplier, ForceMode.Acceleration);
+        }
+        else if (isWallRunning)
+        {
+            rb.AddForce(wallRunDirection * wallMoveSpeed * movementMultiplier, ForceMode.Acceleration);
+        }
+        else if (!isGrounded)
+        {
+            rb.AddForce(moveDirection.normalized * moveSpeed * movementMultiplier * airMultiplier, ForceMode.Acceleration);
+        }
+    }
+
+    private void HandleInput()
+    {
+        horizontalMovement = Input.GetAxisRaw("Horizontal");
+        verticalMovement = Input.GetAxisRaw("Vertical");
+
+        moveDirection = transform.forward * verticalMovement + transform.right * horizontalMovement;
+    }
+
+    private void ChangeMaterials(MeshRenderer mr, Material newMat)
+    {
+        Material[] materials = mr.materials;
+        for (int i = 0; i < materials.Length; i++)
+        {
+            materials[i] = newMat;
+        }
+        mr.materials = materials;
+    }
+
 }
