@@ -30,6 +30,9 @@ public class Movement : MonoBehaviour
 
     public Text movementInfoText;
 
+    public GameObject throwableObject; // coin
+    public float throwForce = 15f;
+
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -47,6 +50,11 @@ public class Movement : MonoBehaviour
     {
         Move();
         LookAround();
+        // Coin
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            ThrowObject();
+        }
 
         // Sliding
         if (Input.GetKeyDown(KeyCode.LeftControl) && !isSliding)
@@ -123,16 +131,15 @@ public class Movement : MonoBehaviour
         PhysicMaterial slideMaterial = new PhysicMaterial { frictionCombine = PhysicMaterialCombine.Minimum, dynamicFriction = 0f, staticFriction = 0f };
         GetComponent<Collider>().material = slideMaterial;
 
-        yield return new WaitForSeconds(slideDuration);
-
-        // Reset camera position if still sliding
-        if (isSliding)
+        float slideTime = 0f;
+        while (slideTime < slideDuration && Input.GetKey(KeyCode.LeftControl))
         {
-            Camera.main.transform.localPosition = new Vector3(Camera.main.transform.localPosition.x, normalCameraHeight, Camera.main.transform.localPosition.z);
-            // Restore friction
-            GetComponent<Collider>().material = null;
-            isSliding = false;
+            rb.velocity = transform.forward * slideSpeed + Vector3.up * rb.velocity.y;
+            slideTime += Time.deltaTime;
+            yield return null;
         }
+
+        StopSliding();
     }
 
     void StopSliding()
@@ -144,7 +151,6 @@ public class Movement : MonoBehaviour
         // Restore friction
         GetComponent<Collider>().material = null;
     }
-
     IEnumerator WallRun()
     {
         isWallRunning = true;
@@ -216,5 +222,18 @@ public class Movement : MonoBehaviour
     bool IsGrounded()
     {
         return Physics.Raycast(transform.position, Vector3.down, 1.1f);
+    }
+
+    void ThrowObject()
+    {
+        if (throwableObject == null) return;
+
+        GameObject thrownObject = Instantiate(throwableObject, transform.position + transform.forward, Quaternion.identity);
+
+        Rigidbody thrownRb = thrownObject.GetComponent<Rigidbody>();
+        if (thrownRb != null)
+        {
+            thrownRb.AddForce(Camera.main.transform.forward * throwForce, ForceMode.Impulse);
+        }
     }
 }
