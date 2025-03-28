@@ -97,8 +97,6 @@ public class Movement : MonoBehaviour
         }
     }
 
-    #region Wall Run
-
     private void WallRunning()
     {
         CheckWall();
@@ -219,8 +217,6 @@ public class Movement : MonoBehaviour
         return true;
     }
 
-    #endregion
-
     void Jump()
     {
         if (canJump && !isWallRunning)
@@ -244,12 +240,14 @@ public class Movement : MonoBehaviour
         if (isGrounded)
         {
             rb.AddForce(moveDirection.normalized * moveSpeed * movementMultiplier, ForceMode.Acceleration);
+            // friction
+            rb.velocity = new Vector3(rb.velocity.x * 0.9f, rb.velocity.y, rb.velocity.z * 0.9f);
         }
         else if (isWallRunning)
         {
             rb.AddForce(wallRunDirection * wallMoveSpeed * movementMultiplier, ForceMode.Acceleration);
         }
-        else if (!isGrounded)
+        else
         {
             rb.AddForce(moveDirection.normalized * moveSpeed * movementMultiplier * airMultiplier, ForceMode.Acceleration);
         }
