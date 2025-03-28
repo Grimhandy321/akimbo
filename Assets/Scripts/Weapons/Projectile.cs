@@ -20,9 +20,12 @@ public class Projectile : MonoBehaviour
         transform.Translate(Vector3.forward * speed * Time.deltaTime);
     }
 
+    public float GetDamage() => damage;
+    public Team GetTeam() => shooterTeam;
+
     void OnTriggerEnter(Collider other)
     {
-       var target = null // todo add hp
+        var target = null; // todo add hp
 
         if (target != null)
         {
