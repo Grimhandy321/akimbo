@@ -5,52 +5,64 @@ using UnityEngine;
 
 public class CoinManager : MonoBehaviour
 {
-    private float storedDamage;
-    private Team storedTeam;
+    public float healAmount = 10f;
 
-    void OnTriggerEnter(Collider other)
+    public void HitByHitScan(float damage, Team shooterTeam)
     {
-        // Handle Projectile
-        if (other.TryGetComponent<Projectile>(out var projectile))
+        PlayerController target = FindClosestEnemy(shooterTeam);
+        if (target != null)
         {
-            storedTeam = projectile.GetTeam();
-            Debug.Log($"Hit by projectile! Teleporting. Team: {storedTeam}");
-
-            // Teleport to the closest enemy player
-            TeleportToClosestEnemy();
-            Destroy(other.gameObject); // Destroy projectile
+            target.TakeDamage(damage, shooterTeam, true);
+            HealShooter(shooterTeam, healAmount);
         }
     }
 
-    // Called by HitScan weapons via Raycast
-    public void HitByHitScan(float damage, Team team)
+    public void HitByProjectile(Projectile projectile, Team shooterTeam)
     {
-        storedDamage = damage;
-        storedTeam = team;
-        Debug.Log($"Hit by HitScan! Damage stored: {storedDamage}, Team: {storedTeam}");
+        PlayerController target = FindClosestEnemy(shooterTeam);
+        if (target != null)
+        {
+            // Teleport projectile to target and simulate a hit
+            projectile.transform.position = target.transform.position + Vector3.up; // optional offset
+            target.TakeDamage(projectile.Damage, shooterTeam, true);
+            HealShooter(shooterTeam, healAmount);
+        }
+
+        Destroy(projectile.gameObject); // simulate instant hit
     }
 
-    private void TeleportToClosestEnemy()
+    private PlayerController FindClosestEnemy(Team team)
     {
-        // Find all players
-        PlayerController[] players = FindObjectsOfType<PlayerController>();
+        PlayerController[] allPlayers = FindObjectsOfType<PlayerController>();
+        PlayerController closest = null;
+        float minDist = float.MaxValue;
 
-        // Get enemies only
-        var enemyPlayers = players
-            .Where(player => player.PlayerTeam != storedTeam) // Opposite team
-            .OrderBy(player => Vector3.Distance(transform.position, player.transform.position))
-            .ToList();
-
-        // If an enemy exists, teleport to the closest
-        if (enemyPlayers.Count > 0)
+        foreach (var player in allPlayers)
         {
-            Transform closestEnemy = enemyPlayers[0].transform;
-            transform.position = closestEnemy.position + Vector3.up * 2f; // Slightly above
-            Debug.Log($"Teleported to {closestEnemy.name}");
+            if (player.playerTeam == team) continue;
+
+            float dist = Vector3.Distance(transform.position, player.transform.position);
+            if (dist < minDist)
+            {
+                closest = player;
+                minDist = dist;
+            }
         }
-        else
+
+        return closest;
+    }
+
+    private void HealShooter(Team shooterTeam, float amount)
+    {
+        PlayerController[] allPlayers = FindObjectsOfType<PlayerController>();
+        foreach (var player in allPlayers)
         {
-            Debug.Log("No enemy players found!");
+            if (player.playerTeam == shooterTeam)
+            {
+                player.Heal(amount);
+                Debug.Log($"Healed player on {shooterTeam} for {amount} HP");
+                break;
+            }
         }
     }
 }

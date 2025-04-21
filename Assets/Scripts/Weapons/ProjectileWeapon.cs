@@ -11,7 +11,10 @@ public class ProjectileWeapon : Weapon
 
         GameObject proj = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
         Projectile projectile = proj.GetComponent<Projectile>();
-        projectile.Initialize(damage, projectileSpeed, shooterTeam, canFriendlyFire);
+        if (projectile != null)
+        {
+            projectile.Launch(firePoint.forward, shooterTeam, damage, canFriendlyFire);
+        }
 
         ResetFireCooldown();
     }
