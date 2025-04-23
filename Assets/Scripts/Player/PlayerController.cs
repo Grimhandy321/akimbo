@@ -30,7 +30,6 @@ public class PlayerController : MonoBehaviour
     {
         if (!canFriendlyFire && attackerTeam == playerTeam)
         {
-            // Ignore friendly fire 
             return;
         }
 

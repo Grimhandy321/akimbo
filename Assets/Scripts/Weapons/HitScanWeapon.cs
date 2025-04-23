@@ -23,6 +23,7 @@ public class HitScanWeapon : Weapon
             }
         }
 
+        PlayFireSound();
         ResetFireCooldown();
     }
 }

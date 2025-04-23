@@ -13,9 +13,10 @@ public class ProjectileWeapon : Weapon
         Projectile projectile = proj.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.Launch(firePoint.forward, shooterTeam, damage, canFriendlyFire);
+            projectile.Launch(firePoint.forward * projectileSpeed, shooterTeam, damage, canFriendlyFire);
         }
 
+        PlayFireSound();
         ResetFireCooldown();
     }
 }

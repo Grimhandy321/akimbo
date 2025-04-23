@@ -250,7 +250,6 @@ public class Movement : MonoBehaviour
         {
             rb.AddForce(moveDirection.normalized * moveSpeed * movementMultiplier * airMultiplier, ForceMode.Acceleration);
         }
-        Debug.Log("MoveDir: " + moveDirection.normalized * moveSpeed * movementMultiplier * airMultiplier + ", IsGrounded: " + isGrounded);
 
     }
 
