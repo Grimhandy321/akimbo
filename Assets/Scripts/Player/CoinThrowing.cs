@@ -5,7 +5,7 @@ using UnityEngine;
 public class CoinThrowing : MonoBehaviour
 {
     public GameObject throwableObject; // coin
-    public float throwForce = 15f;
+    public float throwForce = 30f;
 
     void Update()
     {
@@ -18,7 +18,7 @@ public class CoinThrowing : MonoBehaviour
     {
         if (throwableObject == null) return;
 
-        GameObject thrownObject = Instantiate(throwableObject, transform.position + transform.forward, Quaternion.identity);
+        GameObject thrownObject = Instantiate(throwableObject, transform.position + transform.forward, new Quaternion(90,90,90,0));
 
         Rigidbody thrownRb = thrownObject.GetComponent<Rigidbody>();
         if (thrownRb != null)

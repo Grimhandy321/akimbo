@@ -23,9 +23,9 @@ public class Movement : MonoBehaviour
 
     private Rigidbody rb;
 
-    float groundDistance = 0.4f;
+    float groundDistance = 0.5f;
 
-    [Header("Wall Run")] 
+    [Header("Wall Run")]
     public float wallMoveSpeed = 15;
     public float wallPullForce = 500;
     public float wallDistance = 3;
@@ -54,7 +54,6 @@ public class Movement : MonoBehaviour
     private void Start()
     {
         canJump = true;
-
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
     }
@@ -64,7 +63,7 @@ public class Movement : MonoBehaviour
         Debug.DrawRay(transform.position, transform.right * wallDistance, Color.green);
         Debug.DrawRay(transform.position, -transform.right * wallDistance, Color.red);
 
-        isGrounded = Physics.CheckSphere(transform.position - new Vector3(0, 1, 0), groundDistance, groundMask);
+        isGrounded = Physics.CheckSphere(transform.position - new Vector3(0, 0.5F, 0), groundDistance, groundMask);
 
         HandleInput();
 
@@ -84,7 +83,6 @@ public class Movement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        //  Adding custom gravity
         MovePlayer();
         Gravity();
     }
@@ -122,6 +120,8 @@ public class Movement : MonoBehaviour
         wallLeft = Physics.Raycast(transform.position, -transform.right, out leftWallHit, wallDistance, wallMask);
         wallRight = Physics.Raycast(transform.position, transform.right, out rightWallHit, wallDistance, wallMask);
     }
+
+
 
     private void WallRun()
     {
@@ -211,7 +211,6 @@ public class Movement : MonoBehaviour
         pulledToTheWall = false;
         wallRunTilt = Mathf.Lerp(wallRunTilt, 0, camTiltTime * Time.deltaTime);
     }
-
     private bool CanWallRun()
     {
         return true;
@@ -251,6 +250,8 @@ public class Movement : MonoBehaviour
         {
             rb.AddForce(moveDirection.normalized * moveSpeed * movementMultiplier * airMultiplier, ForceMode.Acceleration);
         }
+        Debug.Log("MoveDir: " + moveDirection.normalized * moveSpeed * movementMultiplier * airMultiplier + ", IsGrounded: " + isGrounded);
+
     }
 
     private void HandleInput()

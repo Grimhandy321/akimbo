@@ -23,8 +23,8 @@ public class CoinManager : MonoBehaviour
         if (target != null)
         {
             // Teleport projectile to target and simulate a hit
-            projectile.transform.position = target.transform.position + Vector3.up; // optional offset
-            target.TakeDamage(projectile.Damage, shooterTeam, true);
+            projectile.transform.position = target.transform.position + Vector3.up; 
+            target.TakeDamage(projectile.damage, shooterTeam, true);
             HealShooter(shooterTeam, healAmount);
         }
 
@@ -63,6 +63,13 @@ public class CoinManager : MonoBehaviour
                 Debug.Log($"Healed player on {shooterTeam} for {amount} HP");
                 break;
             }
+        }
+    }
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            Destroy(gameObject);
         }
     }
 }
