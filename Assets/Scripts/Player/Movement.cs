@@ -51,8 +51,17 @@ public class Movement : MonoBehaviour
     [Header("Materials")] public Material blackMaterial;
     public Material greenMaterial;
 
+
+
+    private Alteruna.Avatar _avatar;
     private void Start()
     {
+        _avatar = GetComponent<Alteruna.Avatar>();
+        if (!_avatar.IsMe) 
+        {
+            return;
+        }
+
         canJump = true;
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
@@ -60,6 +69,11 @@ public class Movement : MonoBehaviour
 
     private void Update()
     {
+        if (!_avatar.IsMe)
+        {
+            return;
+        }
+
         Debug.DrawRay(transform.position, transform.right * wallDistance, Color.green);
         Debug.DrawRay(transform.position, -transform.right * wallDistance, Color.red);
 
