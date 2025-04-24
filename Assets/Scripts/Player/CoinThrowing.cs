@@ -17,13 +17,13 @@ public class CoinThrowing : MonoBehaviour
     void ThrowObject()
     {
         if (throwableObject == null) return;
-
-        GameObject thrownObject = Instantiate(throwableObject, transform.position + transform.forward, new Quaternion(90,90,90,0));
+        Vector3 screenCenter = new Vector3(Screen.width / 2f, Screen.height / 2f, 0f);
+        Ray ray = Camera.main.ScreenPointToRay(screenCenter);
+        GameObject thrownObject = Instantiate(throwableObject, Camera.main.transform.position + ray.direction.normalized * 1f, Quaternion.identity);
 
         Rigidbody thrownRb = thrownObject.GetComponent<Rigidbody>();
         if (thrownRb != null)
         {
-            thrownRb.AddForce(Camera.main.transform.forward * throwForce, ForceMode.Impulse);
-        }
+            thrownRb.AddForce(ray.direction.normalized * throwForce, ForceMode.Impulse);        }
     }
 }

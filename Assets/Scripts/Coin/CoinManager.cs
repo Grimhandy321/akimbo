@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class CoinManager : MonoBehaviour
 {
-    public float healAmount = 10f;
+   /* public float healAmount = 10f;
 
     public void HitByHitScan(float damage, Team shooterTeam)
     {
@@ -71,5 +71,5 @@ public class CoinManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-    }
+    }*/
 }

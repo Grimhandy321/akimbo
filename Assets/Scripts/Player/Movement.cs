@@ -23,12 +23,12 @@ public class Movement : MonoBehaviour
 
     private Rigidbody rb;
 
-    float groundDistance = 0.5f;
+    float groundDistance = 3f;
 
     [Header("Wall Run")]
     public float wallMoveSpeed = 15;
     public float wallPullForce = 500;
-    public float wallDistance = 3;
+    public float wallDistance = 50;
     public float wallRunGravity = 0.2f;
     public bool isWallRunning;
     public float wallRunJumpForceX = 1200, wallRunJumpForceY = 800;

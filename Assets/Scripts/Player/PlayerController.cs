@@ -1,12 +1,14 @@
+using System;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public Weapon weapon;
+
     public float maxHealth = 100f;
     public Team playerTeam;
     public Transform weaponHolder;
     private float currentHealth;
+    public static Action shootInput;
 
     void Start()
     {
@@ -20,12 +22,12 @@ public class PlayerController : MonoBehaviour
 
     void HandleShooting()
     {
-        if (weapon != null && Input.GetButton("Fire1"))
+        if (Input.GetMouseButton(0))
         {
-            weapon.Fire(transform, playerTeam);
+            shootInput?.Invoke();
         }
     }
-
+    /*
     public void TakeDamage(float amount, Team attackerTeam, bool canFriendlyFire)
     {
         if (!canFriendlyFire && attackerTeam == playerTeam)
@@ -62,5 +64,5 @@ public class PlayerController : MonoBehaviour
         weaponInstance.transform.localRotation = Quaternion.identity;
 
         weapon = weaponInstance.GetComponent<Weapon>();
-    }
+    }*/
 }
