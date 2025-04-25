@@ -3,32 +3,33 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class CoinManager : MonoBehaviour
+public class CoinManager : MonoBehaviour, ITargetable
 {
-   /* public float healAmount = 10f;
+    public float healAmount = 10f;
 
     public void HitByHitScan(float damage, Team shooterTeam)
     {
         PlayerController target = FindClosestEnemy(shooterTeam);
         if (target != null)
         {
-            target.TakeDamage(damage, shooterTeam, true);
+            target.Damage(shooterTeam, damage);
             HealShooter(shooterTeam, healAmount);
         }
     }
 
-    public void HitByProjectile(Projectile projectile, Team shooterTeam)
+    public void Damage(Team attackerTeam, float damage)
     {
-        PlayerController target = FindClosestEnemy(shooterTeam);
-        if (target != null)
-        {
-            // Teleport projectile to target and simulate a hit
-            projectile.transform.position = target.transform.position + Vector3.up; 
-            target.TakeDamage(projectile.damage, shooterTeam, true);
-            HealShooter(shooterTeam, healAmount);
-        }
+        HitByHitScan(damage, attackerTeam);
+    }
 
-        Destroy(projectile.gameObject); // simulate instant hit
+    void Die()
+    {
+        Debug.Log("Player Died");
+    }
+
+    public void Heal(float amount)
+    {
+
     }
 
     private PlayerController FindClosestEnemy(Team team)
@@ -71,5 +72,5 @@ public class CoinManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-    }*/
+    }
 }

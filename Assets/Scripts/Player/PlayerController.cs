@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController :  MonoBehaviour , ITargetable
 {
 
     public float maxHealth = 100f;
@@ -27,15 +27,15 @@ public class PlayerController : MonoBehaviour
             shootInput?.Invoke();
         }
     }
-    /*
-    public void TakeDamage(float amount, Team attackerTeam, bool canFriendlyFire)
+    
+    public void Damage(Team attackerTeam, float damage)
     {
-        if (!canFriendlyFire && attackerTeam == playerTeam)
+        if (attackerTeam == playerTeam)
         {
             return;
         }
 
-        currentHealth -= amount;
+        currentHealth -= damage;
         if (currentHealth <= 0f)
         {
             Die();
@@ -51,18 +51,4 @@ public class PlayerController : MonoBehaviour
     {
         currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
     }
-
-    public void EquipWeapon(GameObject weaponPrefab)
-    {
-        if (weapon != null)
-        {
-            Destroy(weapon.gameObject);
-        }
-
-        GameObject weaponInstance = Instantiate(weaponPrefab, weaponHolder);
-        weaponInstance.transform.localPosition = Vector3.zero;
-        weaponInstance.transform.localRotation = Quaternion.identity;
-
-        weapon = weaponInstance.GetComponent<Weapon>();
-    }*/
 }

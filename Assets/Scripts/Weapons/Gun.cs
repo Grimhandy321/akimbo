@@ -30,7 +30,12 @@ public class Gun : MonoBehaviour
         {
             if (Physics.Raycast(Camera.main.transform.position,transform.forward,out RaycastHit hitInfo, gundata.range)) 
             {
+                ITargetable target = hitInfo.transform.GetComponent<ITargetable>();
                 Debug.Log(hitInfo.transform.name);
+                if (target != null)
+                {
+                    target.Damage(Team.Red, gundata.damage); 
+                }
             }
             timeSinceLastShot = 0;
             OnGunShot();
