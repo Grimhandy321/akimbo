@@ -5,7 +5,7 @@ public class PlayerController :  MonoBehaviour , ITargetable
 {
 
     public float maxHealth = 100f;
-    public Team playerTeam;
+    public Team playerTeam = Team.Neutral;
     public Transform weaponHolder;
     private float currentHealth;
     public static Action shootInput;

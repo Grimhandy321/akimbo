@@ -3,33 +3,29 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class CoinManager : MonoBehaviour, ITargetable
+public class CoinManager : MonoBehaviour
 {
     public float healAmount = 10f;
 
     public void HitByHitScan(float damage, Team shooterTeam)
     {
+
         PlayerController target = FindClosestEnemy(shooterTeam);
+        Target testTarget = FindClosestTarget();
+        if (testTarget != null) 
+        {
+            transform.position = testTarget.transform.position;
+            testTarget.Damage(shooterTeam, damage);
+            HealShooter(shooterTeam, healAmount);
+            Debug.Log("Target Hit");
+        }
         if (target != null)
         {
+            transform.position = target.transform.position;
             target.Damage(shooterTeam, damage);
             HealShooter(shooterTeam, healAmount);
+            Destroy(gameObject);
         }
-    }
-
-    public void Damage(Team attackerTeam, float damage)
-    {
-        HitByHitScan(damage, attackerTeam);
-    }
-
-    void Die()
-    {
-        Debug.Log("Player Died");
-    }
-
-    public void Heal(float amount)
-    {
-
     }
 
     private PlayerController FindClosestEnemy(Team team)
@@ -41,6 +37,26 @@ public class CoinManager : MonoBehaviour, ITargetable
         foreach (var player in allPlayers)
         {
             if (player.playerTeam == team) continue;
+
+            float dist = Vector3.Distance(transform.position, player.transform.position);
+            if (dist < minDist)
+            {
+                closest = player;
+                minDist = dist;
+            }
+        }
+
+        return closest;
+    }
+
+    private Target FindClosestTarget() 
+    {
+        Target[] allPlayers = FindObjectsOfType<Target>();
+        Target closest = null;
+        float minDist = float.MaxValue;
+
+        foreach (var player in allPlayers)
+        {
 
             float dist = Vector3.Distance(transform.position, player.transform.position);
             if (dist < minDist)

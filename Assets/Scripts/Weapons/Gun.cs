@@ -9,6 +9,7 @@ public class Gun : MonoBehaviour
     public Transform muzzle;
     private float timeSinceLastShot;
     private AudioSource audioSource;
+    public PlayerController controller;
 
     private void Update()
     {
@@ -19,6 +20,7 @@ public class Gun : MonoBehaviour
     {
         PlayerController.shootInput += Shoot;
         audioSource = gameObject.AddComponent<AudioSource>();
+
         audioSource.clip = gundata?.shootsound;
     }
 
@@ -28,13 +30,17 @@ public class Gun : MonoBehaviour
     {
         if (CanShoot()) 
         {
-            if (Physics.Raycast(Camera.main.transform.position,transform.forward,out RaycastHit hitInfo, gundata.range)) 
+            if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward,out RaycastHit hitInfo, gundata.range)) 
             {
                 ITargetable target = hitInfo.transform.GetComponent<ITargetable>();
-                Debug.Log(hitInfo.transform.name);
+                CoinManager coinManager = hitInfo.transform.GetComponent<CoinManager>();
                 if (target != null)
                 {
-                    target.Damage(Team.Red, gundata.damage); 
+                    target.Damage(controller.playerTeam, gundata.damage); 
+                }
+                if (coinManager != null) 
+                {
+                    coinManager.HitByHitScan(gundata.damage, controller.playerTeam);
                 }
             }
             timeSinceLastShot = 0;

@@ -5,7 +5,7 @@ using UnityEngine;
 public class CoinThrowing : MonoBehaviour
 {
     public GameObject throwableObject; // coin prefab
-    public float throwForce = 30f;
+    public float throwForce = 300f;
 
     public Vector3 baseEulerOffset = new Vector3(90, 45, 45
         );

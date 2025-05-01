@@ -52,6 +52,21 @@ public class Movement : MonoBehaviour
     public Material greenMaterial;
 
 
+    [Header("Grappling")]
+    public float maxGrappleDistance = 40f;
+    public float grappleDelayTime = 0.2f;
+    public float overshootYAxis = 5f;
+    private Vector3 grapplePoint;
+
+    [Header("Grapple Cooldown")]
+    public float grapplingCd = 2f;
+    private float grapplingCdTimer;
+    public LineRenderer lr;
+
+    public KeyCode grappleKey = KeyCode.R;
+    private bool grappling;
+
+
 
     private Alteruna.Avatar _avatar;
     private void Start()
@@ -61,6 +76,9 @@ public class Movement : MonoBehaviour
 
         canJump = true;
         rb.freezeRotation = true;
+
+        lr.positionCount = 2;
+        lr.enabled = false;
     }
 
     private void Update()
@@ -69,6 +87,10 @@ public class Movement : MonoBehaviour
 
         Debug.DrawRay(transform.position, transform.right * wallDistance, Color.green);
         Debug.DrawRay(transform.position, -transform.right * wallDistance, Color.red);
+
+
+        if (Input.GetKeyDown(grappleKey)) StartGrapple();
+        if (grapplingCdTimer > 0) grapplingCdTimer -= Time.deltaTime;
 
         isGrounded = Physics.CheckSphere(transform.position - new Vector3(0, 0.5F, 0), groundDistance, groundMask);
 
@@ -86,6 +108,11 @@ public class Movement : MonoBehaviour
 
 
         WallRunning();
+
+        if (grappling)
+        {
+            lr.SetPosition(0, transform.position);
+        }
     }
 
     private void FixedUpdate()
@@ -276,6 +303,66 @@ public class Movement : MonoBehaviour
             materials[i] = newMat;
         }
         mr.materials = materials;
+    }
+    private void StartGrapple()
+    {
+        if (grapplingCdTimer > 0) return;
+
+        grappling = true;
+        rb.velocity = Vector3.zero;
+        lr.enabled = true;
+        lr.SetPosition(0, transform.position);
+        lr.SetPosition(1, grapplePoint);
+        RaycastHit hit;
+        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, maxGrappleDistance))
+        {
+            grapplePoint = hit.point;
+            Invoke(nameof(ExecuteGrapple), grappleDelayTime);
+        }
+        else
+        {
+            grapplePoint = Camera.main.transform.position + Camera.main.transform.forward * maxGrappleDistance;
+            Invoke(nameof(StopGrapple), grappleDelayTime);
+        }
+    }
+
+    private void ExecuteGrapple()
+    {
+        Debug.Log("asd");
+        Vector3 lowestPoint = new Vector3(transform.position.x, transform.position.y - 1f, transform.position.z);
+        float grapplePointRelativeY = grapplePoint.y - lowestPoint.y;
+        float highestPoint = grapplePointRelativeY + overshootYAxis;
+        if (grapplePointRelativeY < 0) highestPoint = overshootYAxis;
+
+        JumpToPosition(grapplePoint, highestPoint);
+        Invoke(nameof(StopGrapple), 1.2f);
+    }
+
+    private void JumpToPosition(Vector3 target, float trajectoryHeight)
+    {
+        Vector3 velocity = CalculateJumpVelocity(transform.position, target, trajectoryHeight);
+        rb.velocity = Vector3.zero;
+        rb.AddForce(velocity, ForceMode.VelocityChange);
+    }
+
+    private Vector3 CalculateJumpVelocity(Vector3 startPoint, Vector3 endPoint, float height)
+    {
+        float gravity = Physics.gravity.y;
+        float displacementY = endPoint.y - startPoint.y;
+        Vector3 displacementXZ = new Vector3(endPoint.x - startPoint.x, 0, endPoint.z - startPoint.z);
+
+        float time = Mathf.Sqrt(-2 * height / gravity) + Mathf.Sqrt(2 * (displacementY - height) / gravity);
+        Vector3 velocityY = Vector3.up * Mathf.Sqrt(-2 * gravity * height);
+        Vector3 velocityXZ = displacementXZ / time;
+
+        return velocityXZ + velocityY;
+    }
+
+    private void StopGrapple()
+    {
+        grappling = false;
+        grapplingCdTimer = grapplingCd;
+        lr.enabled = false;
     }
 
 }
