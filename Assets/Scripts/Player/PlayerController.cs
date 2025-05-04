@@ -1,54 +1,42 @@
+using Alteruna;
 using System;
 using UnityEngine;
 
-public class PlayerController :  MonoBehaviour , ITargetable
+public partial class PlayerController : Synchronizable
 {
 
-    public float maxHealth = 100f;
-    public Team playerTeam = Team.Neutral;
-    public Transform weaponHolder;
-    private float currentHealth;
-    public static Action shootInput;
 
     void Start()
     {
-        currentHealth = maxHealth;
+        InitializeMovement(); 
+        InitializeGrapple();  
     }
 
     void Update()
     {
         HandleShooting();
+        MovementUpdate();     
+        GrappleUpdate();    
     }
 
-    void HandleShooting()
+    void FixedUpdate()
     {
-        if (Input.GetMouseButton(0))
-        {
-            shootInput?.Invoke();
-        }
-    }
-    
-    public void Damage(Team attackerTeam, float damage)
-    {
-        if (attackerTeam == playerTeam)
-        {
-            return;
-        }
-
-        currentHealth -= damage;
-        if (currentHealth <= 0f)
-        {
-            Die();
-        }
+        MovementFixedUpdate(); 
     }
 
-    void Die()
+
+
+   
+
+    public override void AssembleData(Writer writer, byte LOD = 100)
     {
-        Debug.Log("Player Died");
+        writer.Write(currentHealth);
+        writer.Write((int)playerTeam);
     }
 
-    public void Heal(float amount)
+    public override void DisassembleData(Reader reader, byte LOD = 100)
     {
-        currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
+        currentHealth = reader.ReadFloat();
+        playerTeam = (Team)reader.ReadInt();
     }
 }
