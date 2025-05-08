@@ -224,14 +224,14 @@ MonoBehaviour:
     Frequency: 120
   Reliability: 2
   coinPrefab: {fileID: 1061420117597084993, guid: 87f223494caf7d749acc4b26c435aa6c, type: 3}
-  throwOrigin: {fileID: 0}
+  throwOrigin: {fileID: 3149111636732696378}
   throwForce: 20
   throwCooldown: 1
-  maxGrappleDistance: 40
-  grappleDelayTime: 0.2
-  overshootYAxis: 5
-  grapplingCd: 2
-  lr: {fileID: 8384489974400342762}
+  lineRenderer: {fileID: 8384489974400342762}
+  maxDistance: 50
+  grappleSpeed: 10
+  grappleDelay: 0.3
+  player: {fileID: 3149111636732696378}
   grappleKey: 114
   maxHealth: 100
   currentHealth: 0
@@ -260,7 +260,7 @@ MonoBehaviour:
   isWallRunning: 0
   wallRunJumpForceX: 1200
   wallRunJumpForceY: 800
-  cam: {fileID: 0}
+  cam: {fileID: 418714784102040117}
   camTilt: 0
   camTiltTime: 0
   wallRunTilt: 0

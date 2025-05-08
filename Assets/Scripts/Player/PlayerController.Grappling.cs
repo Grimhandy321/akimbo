@@ -4,8 +4,8 @@ public partial class PlayerController
 {
     public LineRenderer lineRenderer;
     public float maxDistance = 50f;
-    public float grappleSpeed = 10f;
-    public float grappleDelay = 0.3f; 
+    public float grappleSpeed = 100f;
+    public float grappleDelay = 0.1f; 
     public Transform player;
 
     public KeyCode grappleKey = KeyCode.R;  
@@ -15,7 +15,7 @@ public partial class PlayerController
     private SpringJoint springJoint;
     private bool isLineDrawn = false;
 
-    void Update()
+    void GrappleUpdate()
     {
         if (Input.GetKeyDown(grappleKey))  
         {

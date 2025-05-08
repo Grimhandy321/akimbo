@@ -11,7 +11,6 @@ public partial class PlayerController : Synchronizable
         if (!_isOwner) return;
         InitializeMovement();
         InitializeNetworking();
-        InitializeGrapple();  
     }
 
     void Update()
