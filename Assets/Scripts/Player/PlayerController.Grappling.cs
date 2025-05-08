@@ -2,84 +2,85 @@
 
 public partial class PlayerController
 {
-    public float maxGrappleDistance = 40f;
-    public float grappleDelayTime = 0.2f;
-    public float overshootYAxis = 5f;
-    public float grapplingCd = 2f;
-    public LineRenderer lr;
-    public KeyCode grappleKey = KeyCode.R;
+    public LineRenderer lineRenderer;
+    public float maxDistance = 50f;
+    public float grappleSpeed = 10f;
+    public float grappleDelay = 0.3f; 
+    public Transform player;
+
+    public KeyCode grappleKey = KeyCode.R;  
 
     private Vector3 grapplePoint;
-    private float grapplingCdTimer;
-    private bool grappling;
+    private bool isGrappling = false;
+    private SpringJoint springJoint;
+    private bool isLineDrawn = false;
 
-    private void InitializeGrapple()
+    void Update()
     {
-        lr.positionCount = 2;
-        lr.enabled = false;
+        if (Input.GetKeyDown(grappleKey))  
+        {
+            StartGrappling();
+        }
+        else if (Input.GetKeyUp(grappleKey)) 
+        {
+            StopGrappling();
+        }
+
+        if (isGrappling)
+        {
+            DrawRope();
+        }
     }
 
-    private void GrappleUpdate()
+    void StartGrappling()
     {
-        if (grapplingCdTimer > 0) grapplingCdTimer -= Time.deltaTime;
-
-        if (Input.GetKeyDown(grappleKey)) StartGrapple();
-
-        if (grappling) lr.SetPosition(0, transform.position);
-    }
-
-    private void StartGrapple()
-    {
-        if (grapplingCdTimer > 0) return;
-
-        grappling = true;
-        lr.enabled = true;
-        rb.velocity = Vector3.zero;
-
         RaycastHit hit;
-        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, maxGrappleDistance))
+        if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out hit, maxDistance))
         {
             grapplePoint = hit.point;
-            lr.SetPosition(1, grapplePoint);
-            Invoke(nameof(ExecuteGrapple), grappleDelayTime);
+            isGrappling = true;
+            lineRenderer.positionCount = 2;
+            lineRenderer.SetPosition(0, player.position);
+            lineRenderer.SetPosition(1, grapplePoint);
+
+
+            isLineDrawn = true;
+
+            Invoke("LaunchPlayer", grappleDelay);
         }
-        else
+    }
+
+    void LaunchPlayer()
+    {
+        if (isLineDrawn)
         {
-            grapplePoint = Camera.main.transform.position + Camera.main.transform.forward * maxGrappleDistance;
-            lr.SetPosition(1, grapplePoint);
-            Invoke(nameof(StopGrapple), grappleDelayTime);
+            springJoint = player.gameObject.AddComponent<SpringJoint>();
+            springJoint.autoConfigureConnectedAnchor = false;
+            springJoint.connectedAnchor = grapplePoint;
+            springJoint.maxDistance = Vector3.Distance(player.position, grapplePoint);
+            springJoint.spring = 50f;
+
+            Invoke("StopGrappling", 2f);  
         }
     }
 
-    private void ExecuteGrapple()
+    void StopGrappling()
     {
-        Vector3 lowestPoint = new Vector3(transform.position.x, transform.position.y - 1f, transform.position.z);
-        float relativeY = grapplePoint.y - lowestPoint.y;
-        float height = (relativeY < 0) ? overshootYAxis : relativeY + overshootYAxis;
-        Vector3 velocity = CalculateJumpVelocity(transform.position, grapplePoint, height);
-
-        rb.velocity = Vector3.zero;
-        rb.AddForce(velocity, ForceMode.VelocityChange);
-        Invoke(nameof(StopGrapple), 1.2f);
+        if (springJoint != null)
+        {
+            Destroy(springJoint);
+        }
+        lineRenderer.positionCount = 0;
+        isGrappling = false;
+        isLineDrawn = false;
     }
 
-    private void StopGrapple()
+    void DrawRope()
     {
-        grappling = false;
-        grapplingCdTimer = grapplingCd;
-        lr.enabled = false;
-    }
-
-    private Vector3 CalculateJumpVelocity(Vector3 startPoint, Vector3 endPoint, float height)
-    {
-        float gravity = Physics.gravity.y;
-        float displacementY = endPoint.y - startPoint.y;
-        Vector3 displacementXZ = new Vector3(endPoint.x - startPoint.x, 0, endPoint.z - startPoint.z);
-
-        float time = Mathf.Sqrt(-2 * height / gravity) + Mathf.Sqrt(2 * (displacementY - height) / gravity);
-        Vector3 velocityY = Vector3.up * Mathf.Sqrt(-2 * gravity * height);
-        Vector3 velocityXZ = displacementXZ / time;
-
-        return velocityXZ + velocityY;
+        if (lineRenderer != null && isGrappling)
+        {
+            lineRenderer.SetPosition(0, player.position);
+            lineRenderer.SetPosition(1, grapplePoint);
+        }
     }
 }

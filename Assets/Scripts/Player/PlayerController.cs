@@ -8,12 +8,15 @@ public partial class PlayerController : Synchronizable
 
     void Start()
     {
-        InitializeMovement(); 
+        if (!_isOwner) return;
+        InitializeMovement();
+        InitializeNetworking();
         InitializeGrapple();  
     }
 
     void Update()
     {
+        if (!_isOwner) return;
         HandleShooting();
         MovementUpdate();     
         GrappleUpdate();    
@@ -21,22 +24,25 @@ public partial class PlayerController : Synchronizable
 
     void FixedUpdate()
     {
+        if (!_isOwner) return;
         MovementFixedUpdate(); 
     }
 
-
-
-   
-
-    public override void AssembleData(Writer writer, byte LOD = 100)
+    private void OnPossession()
     {
-        writer.Write(currentHealth);
-        writer.Write((int)playerTeam);
+        InitializeHealth();
+        if (_isOwner)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
     }
 
-    public override void DisassembleData(Reader reader, byte LOD = 100)
+    private void OnDisable()
     {
-        currentHealth = reader.ReadFloat();
-        playerTeam = (Team)reader.ReadInt();
+        Commit();
+        Sync();
     }
+
+
 }
