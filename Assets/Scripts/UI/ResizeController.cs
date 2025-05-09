@@ -11,9 +11,7 @@ public class ResizeController : MonoBehaviour
 
     public ResizeType currentResizeType = ResizeType.Size;
 
-    // Size-based variables
     public Vector2 maxSize = new Vector2(1600, 800);
-    // Percentage-based variables
     public Vector2 percentageOfScreen = new Vector2(0.85f, 0.75f);
 
     private RectTransform rect;
