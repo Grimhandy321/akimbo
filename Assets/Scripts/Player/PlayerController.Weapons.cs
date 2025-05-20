@@ -1,6 +1,5 @@
 ﻿using System;
 using UnityEngine;
-
 public partial class PlayerController
 {
     [Header("Weapon Switching")]
@@ -10,9 +9,9 @@ public partial class PlayerController
     private void WeaponUpdate() 
     {
         HandleWeaponSwitch();
-    }
+        }
     private void InitializeWeapons() 
-    {
+        {
         for (int i = 0; i < weapons.Length; i++)
         {
             weapons[i].gameObject.SetActive(i == activeWeaponIndex);
@@ -43,8 +42,8 @@ public partial class PlayerController
             {
                 EquipWeapon(i);
                 break;
-            }
-        }
+    }
+}
 
         if (Input.mouseScrollDelta.y > 0)
             EquipWeapon((activeWeaponIndex + 1) % weapons.Length);

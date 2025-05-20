@@ -20,11 +20,8 @@ namespace AlterunaFPS
 		
 		public void Quit()
 		{
-#if UNITY_EDITOR
 			EditorApplication.ExitPlaymode();
-#else
 			Application.Quit();
-#endif
 		}
 
 		private void Awake()
