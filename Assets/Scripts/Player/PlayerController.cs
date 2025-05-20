@@ -15,10 +15,13 @@ public partial class PlayerController : Synchronizable
 
     void Update()
     {
-        if (!_isOwner) return;
-        HandleShooting();
-        MovementUpdate();     
-        GrappleUpdate();    
+        if (_possesed && _isOwner)
+        {
+            WeaponUpdate();
+            HandleShooting();
+            MovementUpdate();
+            GrappleUpdate();
+        }
     }
 
     void FixedUpdate()

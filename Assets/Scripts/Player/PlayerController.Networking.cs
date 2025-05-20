@@ -12,11 +12,6 @@ public partial class PlayerController
     private bool _offline;
     private bool _possesed;
 
-    private void Start()
-    {
-        InitializeNetworking();
-    }
-
     private void InitializeNetworking()
     {
         if (Avatar == null)
