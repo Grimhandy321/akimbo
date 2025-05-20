@@ -1,55 +1,55 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using Alteruna;
 using UnityEngine;
 
 public class Gun : MonoBehaviour
 {
-    [SerializeField] GunData gundata;
+    [SerializeField] private GunData gundata;
     public Transform muzzle;
     private float timeSinceLastShot;
     private AudioSource audioSource;
     public PlayerController controller;
 
-    private void Update()
-    {
-        timeSinceLastShot += Time.deltaTime;
-        Debug.DrawLine(Camera.main.transform.position, transform.forward);
-    }
     private void Start()
     {
         PlayerController.shootInput += Shoot;
         audioSource = gameObject.AddComponent<AudioSource>();
-
         audioSource.clip = gundata?.shootsound;
     }
 
-    private bool CanShoot() => timeSinceLastShot > 1f / (gundata.fireRate / 60);
-
-    public void Shoot() 
+    private void Update()
     {
-        if (CanShoot()) 
+        timeSinceLastShot += Time.deltaTime;
+    }
+
+    private bool CanShoot() => timeSinceLastShot > 1f / (gundata.fireRate / 60f);
+
+    public void Shoot()
+    {
+        if (!controller.IsOwner) return;
+
+        if (CanShoot())
         {
-            if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward,out RaycastHit hitInfo, gundata.range)) 
-            {
-                ITargetable target = hitInfo.transform.GetComponent<ITargetable>();
-                CoinManager coinManager = hitInfo.transform.GetComponent<CoinManager>();
-                if (target != null)
-                {
-                    target.Damage(controller.playerTeam, gundata.damage); 
-                }
-                if (coinManager != null) 
-                {
-                    coinManager.HitByHitScan(gundata.damage, controller.playerTeam);
-                }
-            }
             timeSinceLastShot = 0;
-            OnGunShot();
+
+            Multiplayer.InvokeRemoteProcedure("RPC_Shoot", UserId.All, controller.playerTeam);
+
+            FireLocal(controller.playerTeam);
         }
     }
 
-    private void OnGunShot()
+    [SynchronizableMethod]
+    private void RPC_Shoot(Team team)
     {
-        audioSource.Play();
+        if (controller.IsOwner) return;
+        FireLocal(team);
+    }
+
+    private void FireLocal(Team team)
+    {
+        gundata?.projectile?.Fire(team);
+        if (audioSource && gundata?.shootsound)
+        {
+            audioSource.Play();
+        }
     }
 }

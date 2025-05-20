@@ -5,9 +5,9 @@ using UnityEngine;
 public class GunData : ScriptableObject
 {
     public new string name;
-    public float damage;
-    public float range;
     public float fireRate;
     public AudioClip shootsound;
+    public IProjectile projectile;
+    public Transform gunOffset;
 
 }

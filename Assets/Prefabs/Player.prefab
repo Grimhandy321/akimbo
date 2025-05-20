@@ -234,7 +234,7 @@ MonoBehaviour:
   player: {fileID: 3149111636732696378}
   grappleKey: 114
   maxHealth: 100
-  currentHealth: 0
+  currentHealth: 100
   mouseSensitivity: 100
   playerCamera: {fileID: 8146773588022915007}
   mesh: {fileID: 3302490310564068248}
