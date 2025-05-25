@@ -15,14 +15,9 @@ public class ScoreBoardRow : MonoBehaviour
     public int Kills { get; private set; }
     public int Deaths { get; private set; }
 
-
-    [Tooltip("Reference to the name text-object")]
     public TMP_Text nameText;
-    [Tooltip("Reference to the score text-object")]
     public TMP_Text scoreText;
-    [Tooltip("Reference to the kills text-object")]
     public TMP_Text killsText;
-    [Tooltip("Reference to the deaths text-object")]
     public TMP_Text deathsText;
 
 

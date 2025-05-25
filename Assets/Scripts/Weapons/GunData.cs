@@ -7,7 +7,7 @@ public class GunData : ScriptableObject
     public new string name;
     public float fireRate;
     public AudioClip shootsound;
-    public IProjectile projectile;
+    public ProjectileBase projectile;
     public Transform gunOffset;
 
 }

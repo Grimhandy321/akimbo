@@ -5,9 +5,26 @@ public class RailGunProjectile : ProjectileBase
     public float dmg = 50f;
     public float velocity = 1000f;
     public float lifeTime = 5f;
+
     private Rigidbody rb;
     private Team team;
+    private ushort senderID;
     private Collision collisionInfo;
+
+    public override void Fire(Vector3 position, Vector3 direction, Team teamm,ushort senderID)
+    {
+        this.team = team;
+
+        transform.position = position;
+        transform.rotation = Quaternion.LookRotation(direction);
+        this.senderID = senderID;
+
+        if (rb == null)
+            rb = GetComponent<Rigidbody>();
+
+        rb.velocity = direction * velocity;
+        Destroy(gameObject, lifeTime);
+    }
 
     public override void Detonate()
     {
@@ -20,33 +37,13 @@ public class RailGunProjectile : ProjectileBase
             CoinManager coinManager = otherObject.GetComponent<CoinManager>();
 
             if (target != null)
-            {
-                target.Damage(team, dmg);
-            }
+                target.Damage(team, dmg, senderID);
+
             if (coinManager != null)
-            {
                 coinManager.HitByHitScan(dmg, team);
-            }
         }
+
         Destroy(gameObject);
-    }
-
-    public override void Fire(Team team)
-    {
-        this.team = team;
-
-        var cam = Camera.main;
-        Vector3 position = cam.transform.position;
-        Vector3 direction = cam.transform.forward;
-
-        transform.position = position;
-        transform.rotation = Quaternion.LookRotation(direction);
-
-        if (rb == null)
-            rb = GetComponent<Rigidbody>();
-
-        rb.velocity = direction * velocity;
-        Destroy(gameObject, lifeTime);
     }
 
     private void OnCollisionEnter(Collision collision)

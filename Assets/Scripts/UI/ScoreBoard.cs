@@ -24,10 +24,7 @@ public class ScoreBoard : Synchronizable
 
     [SerializeField]
     private ScoreSetup[] _scoreSetups;
-
-    [SerializeField, Tooltip("The prefab to spawn as a new row in the score board")]
     private GameObject _scoreRowPrefab;
-    [SerializeField, Tooltip("The parent to spawn new rows under")]
     private Transform _scoreRowParent;
 
     private List<ScoreBoardRow> _rows = new List<ScoreBoardRow>();
@@ -118,7 +115,7 @@ public class ScoreBoard : Synchronizable
 
             row.UpdateScore(scoreObj);
         }
-        else // userID == -1 means all values have been changed.
+        else 
         {
             for (int i = 0; i < scoreObj.Size; i++)
             {
@@ -156,7 +153,6 @@ public class ScoreBoard : Synchronizable
 
     public void RemoveRow(ushort userID)
     {
-        // Resets all values in _scoreObjects for userID;
         _scoreObjects.AddUser(userID);
 
         ScoreBoardRow row = _rows.FirstOrDefault(r => r.ID == userID);
@@ -172,8 +168,6 @@ public class ScoreBoard : Synchronizable
             sortedRows[i].transform.SetSiblingIndex(i);
         }
     }
-
-    #region Update Stats
 
     public void AddScore(ushort userID, int amount)
     {
@@ -193,8 +187,6 @@ public class ScoreBoard : Synchronizable
         _serialationQueue.Add(new KeyValuePair<int, ushort>(_scoreIndexDeaths, userID));
     }
     
-    #endregion
-
     public override void Serialize(ITransportStreamWriter processor, byte LOD, bool forceSync = false)
     {
         _forceSync = forceSync;
@@ -259,7 +251,7 @@ public class ScoreBoard : Synchronizable
         }
         catch (Exception e)
         {
-            Debug.LogError($"Something went wrong with DisassembleData! Error: {e.Message}");
+            Debug.LogError($"Error: {e.Message}");
         }
     }
 

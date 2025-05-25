@@ -7,8 +7,8 @@ public partial class PlayerController
 {
     private Vector2 _lastPosition;
     private bool _force;
-    private bool _isOwner = true;
-    private bool _isHost = false;
+    public bool _isOwner = true;
+    public bool _isHost = false;
     private bool _offline;
     private bool _possesed;
 

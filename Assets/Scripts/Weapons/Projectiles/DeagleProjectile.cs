@@ -7,28 +7,21 @@ public class DeagleProjectile : ProjectileBase
 
     public override void Detonate()
     {
-        // Not used for hitscan but required by abstract class
+        // Not used for hitscan
     }
 
-    public override void Fire(Team team)
+    public override void Fire(Vector3 origin, Vector3 direction, Team team, ushort senderId)
     {
-        var cam = Camera.main;
-        Vector3 origin = cam.transform.position;
-        Vector3 direction = cam.transform.forward;
-
         if (Physics.Raycast(origin, direction, out RaycastHit hitInfo, range))
         {
             ITargetable target = hitInfo.transform.GetComponent<ITargetable>();
             CoinManager coinManager = hitInfo.transform.GetComponent<CoinManager>();
 
             if (target != null)
-            {
-                target.Damage(team, damage);
-            }
+                target.Damage(team, damage,senderId);
+
             if (coinManager != null)
-            {
                 coinManager.HitByHitScan(damage, team);
-            }
         }
     }
 }

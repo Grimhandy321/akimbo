@@ -1,12 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-
 
 public abstract class ProjectileBase : MonoBehaviour
 {
-    public abstract void Fire(Team team);
-
+    public abstract void Fire(Vector3 position, Vector3 direction, Team team,ushort senderId);
     public abstract void Detonate();
 }
-
