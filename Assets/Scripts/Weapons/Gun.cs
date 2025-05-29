@@ -1,5 +1,6 @@
-using Alteruna;
 using UnityEngine;
+using Alteruna;
+using Alteruna.Trinity;
 
 public class Gun : MonoBehaviour
 {
@@ -16,6 +17,10 @@ public class Gun : MonoBehaviour
         if (multiplayer == null)
         {
             Debug.LogError("Multiplayer component not found");
+        }
+        else
+        {
+            multiplayer.RegisterRemoteProcedure("RPC_Shoot", RPC_Shoot);
         }
     }
 
@@ -45,8 +50,6 @@ public class Gun : MonoBehaviour
             Vector3 pos = Camera.main.transform.position;
             Vector3 dir = Camera.main.transform.forward;
             ushort senderID = (ushort)controller.Avatar.GetInstanceID();
-
-            // Remote Procedure Call
             ProcedureParameters parameters = new ProcedureParameters();
             parameters.Set("team", (ushort)controller.playerTeam);
             parameters.Set("posX", pos.x);
@@ -57,14 +60,12 @@ public class Gun : MonoBehaviour
             parameters.Set("dirZ", dir.z);
             parameters.Set("senderID", senderID);
 
-            multiplayer.InvokeRemoteProcedure("RPC_Shoot", (ushort)UserId.All, parameters);
-
-            // Local Fire
+            multiplayer.InvokeRemoteProcedure("RPC_Shoot", UserId.All, parameters);
             FireLocal(controller.playerTeam, pos, dir, senderID);
         }
     }
 
-    private void RPC_Shoot(ProcedureParameters parameters)
+    public void RPC_Shoot(ushort fromUser, ProcedureParameters parameters, uint callId, ITransportStreamReader processor)
     {
         if (controller._isOwner)
             return;
@@ -91,7 +92,6 @@ public class Gun : MonoBehaviour
         if (gundata?.projectile == null)
             return;
 
-        // Instantiate and fire projectile
         GameObject projectileInstance = Instantiate(gundata.projectile, pos, Quaternion.LookRotation(dir));
         ProjectileBase projectile = projectileInstance.GetComponent<ProjectileBase>();
 

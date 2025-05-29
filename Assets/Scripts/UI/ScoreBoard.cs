@@ -23,9 +23,9 @@ public class ScoreBoard : Synchronizable
 
 
     [SerializeField]
-    private ScoreSetup[] _scoreSetups;
-    private GameObject _scoreRowPrefab;
-    private Transform _scoreRowParent;
+    public ScoreSetup[] _scoreSetups;
+    public GameObject _scoreRowPrefab;
+    public Transform _scoreRowParent;
 
     private List<ScoreBoardRow> _rows = new List<ScoreBoardRow>();
     private List<IScoreObject> _scoreObjects = new List<IScoreObject>();

@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9df3a3fd1aeaeeb4197c4d0480433ddb, type: 3}
-  m_Name: Deagle
+  m_Name: Railgun
   m_EditorClassIdentifier: 
-  name: Deagle
-  fireRate: 60
+  name: RailGun
+  fireRate: 20
   shootsound: {fileID: 8300000, guid: 03195c44c7e35bc41a01d6d666af4179, type: 3}
-  projectile: {fileID: 5720413860645573470, guid: 2fa60149d3cda9d4395211ed590eebe2, type: 3}
+  projectile: {fileID: 1808844775032632355, guid: f6c1d0b2d0a65c94186f2deb6e8840e5, type: 3}
   gunOffset: {fileID: 0}

@@ -4,11 +4,11 @@ using UnityEngine;
 public partial class PlayerController 
 {
     [Header("Weapon Switching")]
-    public Gun[] weapons;
+    public Gun[] weaponPrefabs; // Prefabs in Inspector
+    private Gun[] weaponInstances; // Instantiated at runtime
 
     private int activeWeaponIndex = 0;
     private Gun activeGun;
-
     private void WeaponUpdate()
     {
         HandleWeaponSwitch();
@@ -16,32 +16,35 @@ public partial class PlayerController
 
     private void InitializeWeapons()
     {
-        for (int i = 0; i < weapons.Length; i++)
+        weaponInstances = new Gun[weaponPrefabs.Length];
+
+        for (int i = 0; i < weaponPrefabs.Length; i++)
         {
-            weapons[i].gameObject.SetActive(i == activeWeaponIndex);
-            weapons[i].controller = this;
+            weaponInstances[i] = Instantiate(weaponPrefabs[i], weaponHolder);
+            weaponInstances[i].gameObject.SetActive(i == activeWeaponIndex);
+            weaponInstances[i].controller = this;
         }
 
-        activeGun = weapons[activeWeaponIndex];
+        activeGun = weaponInstances[activeWeaponIndex];
     }
 
     private void EquipWeapon(int index)
     {
-        if (index == activeWeaponIndex || index < 0 || index >= weapons.Length)
+        if (index == activeWeaponIndex || index < 0 || index >= weaponInstances.Length)
             return;
 
         if (activeGun != null)
             activeGun.gameObject.SetActive(false);
 
         activeWeaponIndex = index;
-        activeGun = weapons[activeWeaponIndex];
+        activeGun = weaponInstances[activeWeaponIndex];
         activeGun.gameObject.SetActive(true);
         activeGun.controller = this;
     }
 
     private void HandleWeaponSwitch()
     {
-        for (int i = 0; i < weapons.Length; i++)
+        for (int i = 0; i < weaponInstances.Length; i++)
         {
             if (Input.GetKeyDown(KeyCode.Alpha1 + i))
             {
@@ -54,12 +57,14 @@ public partial class PlayerController
 
         if (scroll > 0)
         {
-            EquipWeapon((activeWeaponIndex + 1) % weapons.Length);
+            EquipWeapon((activeWeaponIndex + 1) % weaponInstances.Length);
         }
         else if (scroll < 0)
         {
-            EquipWeapon((activeWeaponIndex - 1 + weapons.Length) % weapons.Length);
+            EquipWeapon((activeWeaponIndex - 1 + weaponInstances.Length) % weaponInstances.Length);
         }
     }
+
     public Gun ActiveGun => activeGun;
 }
+
