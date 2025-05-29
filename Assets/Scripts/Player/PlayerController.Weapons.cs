@@ -1,17 +1,21 @@
 ﻿using System;
 using UnityEngine;
-public partial class PlayerController
+
+public partial class PlayerController 
 {
     [Header("Weapon Switching")]
     public Gun[] weapons;
+
     private int activeWeaponIndex = 0;
     private Gun activeGun;
-    private void WeaponUpdate() 
+
+    private void WeaponUpdate()
     {
         HandleWeaponSwitch();
     }
-    private void InitializeWeapons() 
-        {
+
+    private void InitializeWeapons()
+    {
         for (int i = 0; i < weapons.Length; i++)
         {
             weapons[i].gameObject.SetActive(i == activeWeaponIndex);
@@ -25,6 +29,7 @@ public partial class PlayerController
     {
         if (index == activeWeaponIndex || index < 0 || index >= weapons.Length)
             return;
+
         if (activeGun != null)
             activeGun.gameObject.SetActive(false);
 
@@ -33,21 +38,28 @@ public partial class PlayerController
         activeGun.gameObject.SetActive(true);
         activeGun.controller = this;
     }
+
     private void HandleWeaponSwitch()
     {
-
         for (int i = 0; i < weapons.Length; i++)
         {
             if (Input.GetKeyDown(KeyCode.Alpha1 + i))
             {
                 EquipWeapon(i);
-                break;
-    }
-}
+                return;
+            }
+        }
 
-        if (Input.mouseScrollDelta.y > 0)
+        float scroll = Input.mouseScrollDelta.y;
+
+        if (scroll > 0)
+        {
             EquipWeapon((activeWeaponIndex + 1) % weapons.Length);
-        else if (Input.mouseScrollDelta.y < 0)
+        }
+        else if (scroll < 0)
+        {
             EquipWeapon((activeWeaponIndex - 1 + weapons.Length) % weapons.Length);
+        }
     }
+    public Gun ActiveGun => activeGun;
 }

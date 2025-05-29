@@ -10,20 +10,20 @@ public class Gun : MonoBehaviour
     public PlayerController controller;
     private Multiplayer multiplayer;
 
+    private void Awake()
+    {
+        multiplayer = FindObjectOfType<Multiplayer>();
+        if (multiplayer == null)
+        {
+            Debug.LogError("Multiplayer component not found");
+        }
+    }
+
     private void Start()
     {
         PlayerController.shootInput += Shoot;
         audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.clip = gundata?.shootsound;
-    }
-
-    private void Awake()
-    {
-        multiplayer = FindObjectOfType<Multiplayer>(); // presto vlak nejede 
-        if (multiplayer == null)
-        {
-            Debug.LogError("Multiplayer component not found");
-        }
     }
 
     private void Update()
@@ -35,7 +35,8 @@ public class Gun : MonoBehaviour
 
     public void Shoot()
     {
-        if (!controller._isOwner) return;
+        if (!controller._isOwner || gundata == null || gundata.projectile == null)
+            return;
 
         if (CanShoot())
         {
@@ -43,29 +44,30 @@ public class Gun : MonoBehaviour
 
             Vector3 pos = Camera.main.transform.position;
             Vector3 dir = Camera.main.transform.forward;
-            ushort senderID  = (ushort)controller.Avatar.GetInstanceID();
+            ushort senderID = (ushort)controller.Avatar.GetInstanceID();
 
+            // Remote Procedure Call
             ProcedureParameters parameters = new ProcedureParameters();
             parameters.Set("team", (ushort)controller.playerTeam);
             parameters.Set("posX", pos.x);
             parameters.Set("posY", pos.y);
             parameters.Set("posZ", pos.z);
-            parameters.Set("senderID", senderID);
-
             parameters.Set("dirX", dir.x);
             parameters.Set("dirY", dir.y);
             parameters.Set("dirZ", dir.z);
-
+            parameters.Set("senderID", senderID);
 
             multiplayer.InvokeRemoteProcedure("RPC_Shoot", (ushort)UserId.All, parameters);
 
-            FireLocal(controller.playerTeam, pos, dir,senderID);
+            // Local Fire
+            FireLocal(controller.playerTeam, pos, dir, senderID);
         }
     }
 
     private void RPC_Shoot(ProcedureParameters parameters)
     {
-        if (controller._isOwner) return;
+        if (controller._isOwner)
+            return;
 
         if (parameters.Get("team", out ushort teamValue) &&
             parameters.Get("posX", out float posX) &&
@@ -73,8 +75,8 @@ public class Gun : MonoBehaviour
             parameters.Get("posZ", out float posZ) &&
             parameters.Get("dirX", out float dirX) &&
             parameters.Get("dirY", out float dirY) &&
-            parameters.Get("senderID" , out ushort senderID) &&
-            parameters.Get("dirZ", out float dirZ))
+            parameters.Get("dirZ", out float dirZ) &&
+            parameters.Get("senderID", out ushort senderID))
         {
             Vector3 pos = new Vector3(posX, posY, posZ);
             Vector3 dir = new Vector3(dirX, dirY, dirZ);
@@ -82,14 +84,27 @@ public class Gun : MonoBehaviour
 
             FireLocal(team, pos, dir, senderID);
         }
-
     }
 
-    private void FireLocal(Team team, Vector3 pos, Vector3 dir,ushort senderId)
+    private void FireLocal(Team team, Vector3 pos, Vector3 dir, ushort senderId)
     {
-        gundata?.projectile?.Fire(pos, dir, team,senderId);
+        if (gundata?.projectile == null)
+            return;
 
-        if (audioSource && gundata?.shootsound)
+        // Instantiate and fire projectile
+        GameObject projectileInstance = Instantiate(gundata.projectile, pos, Quaternion.LookRotation(dir));
+        ProjectileBase projectile = projectileInstance.GetComponent<ProjectileBase>();
+
+        if (projectile != null)
+        {
+            projectile.Fire(pos, dir, team, senderId);
+        }
+        else
+        {
+            Debug.LogWarning("Projectile prefab does not contain a ProjectileBase component.");
+        }
+
+        if (audioSource && gundata.shootsound)
         {
             audioSource.Play();
         }
