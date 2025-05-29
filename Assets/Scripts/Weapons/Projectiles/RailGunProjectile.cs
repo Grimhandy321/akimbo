@@ -23,13 +23,11 @@ public class RailGunProjectile : ProjectileBase
             rb = GetComponent<Rigidbody>();
 
         rb.velocity = direction * velocity;
-        Destroy(gameObject, lifeTime);
     }
 
     public override void Detonate()
     {
         if (collisionInfo == null) return;
-
         foreach (ContactPoint contact in collisionInfo.contacts)
         {
             GameObject otherObject = contact.otherCollider.gameObject;
@@ -43,7 +41,7 @@ public class RailGunProjectile : ProjectileBase
                 coinManager.HitByHitScan(dmg, team,senderID);
         }
 
-        Destroy(gameObject);
+        Destroy(gameObject,lifeTime);
     }
 
     private void OnCollisionEnter(Collision collision)

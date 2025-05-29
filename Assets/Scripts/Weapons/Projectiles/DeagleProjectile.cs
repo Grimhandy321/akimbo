@@ -11,7 +11,7 @@ public class DeagleProjectile : ProjectileBase
     }
 
     public override void Fire(Vector3 origin, Vector3 direction, Team team, ushort senderId)
-    {
+    {;
         if (Physics.Raycast(origin, direction, out RaycastHit hitInfo, range))
         {
             ITargetable target = hitInfo.transform.GetComponent<ITargetable>();

@@ -1,6 +1,7 @@
 using UnityEngine;
 using Alteruna;
 using Alteruna.Trinity;
+using static UnityEngine.UI.Image;
 
 public class Gun : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class Gun : MonoBehaviour
     private float timeSinceLastShot;
     private AudioSource audioSource;
     public PlayerController controller;
+    public Transform fireOrigin;
     private Multiplayer multiplayer;
 
     private void Awake()
@@ -47,8 +49,8 @@ public class Gun : MonoBehaviour
         {
             timeSinceLastShot = 0;
 
-            Vector3 pos = Camera.main.transform.position;
-            Vector3 dir = Camera.main.transform.forward;
+            Vector3 pos = fireOrigin.position;
+            Vector3 dir = fireOrigin.forward;
             ushort senderID = (ushort)controller.Avatar.GetInstanceID();
             ProcedureParameters parameters = new ProcedureParameters();
             parameters.Set("team", (ushort)controller.playerTeam);
@@ -59,7 +61,6 @@ public class Gun : MonoBehaviour
             parameters.Set("dirY", dir.y);
             parameters.Set("dirZ", dir.z);
             parameters.Set("senderID", senderID);
-
             multiplayer.InvokeRemoteProcedure("RPC_Shoot", UserId.All, parameters);
             FireLocal(controller.playerTeam, pos, dir, senderID);
         }

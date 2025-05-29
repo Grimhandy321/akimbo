@@ -48,7 +48,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dmg: 50
-  velocity: 1000
+  velocity: 100
   lifeTime: 5
 --- !u!54 &4173153825430102001
 Rigidbody:

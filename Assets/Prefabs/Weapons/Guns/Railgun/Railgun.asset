@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Railgun
   m_EditorClassIdentifier: 
   name: RailGun
-  fireRate: 20
+  fireRate: 1000
   shootsound: {fileID: 8300000, guid: 03195c44c7e35bc41a01d6d666af4179, type: 3}
   projectile: {fileID: 1808844775032632355, guid: f6c1d0b2d0a65c94186f2deb6e8840e5, type: 3}
   gunOffset: {fileID: 0}

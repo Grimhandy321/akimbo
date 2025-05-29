@@ -23,6 +23,7 @@ public partial class PlayerController
             weaponInstances[i] = Instantiate(weaponPrefabs[i], weaponHolder);
             weaponInstances[i].gameObject.SetActive(i == activeWeaponIndex);
             weaponInstances[i].controller = this;
+            weaponInstances[i].fireOrigin = Camera.main.transform;
         }
 
         activeGun = weaponInstances[activeWeaponIndex];
