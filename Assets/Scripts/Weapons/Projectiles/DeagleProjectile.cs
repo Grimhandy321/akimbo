@@ -21,7 +21,7 @@ public class DeagleProjectile : ProjectileBase
                 target.Damage(team, damage,senderId);
 
             if (coinManager != null)
-                coinManager.HitByHitScan(damage, team);
+                coinManager.HitByHitScan(damage, team, senderId);
         }
     }
 }

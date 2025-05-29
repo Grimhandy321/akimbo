@@ -26,11 +26,8 @@ public partial class PlayerController: ITargetable
 
     void Die() 
     {
-
-
         if (_possesed)
         {
-
 
             ScoreBoard.Instance.AddDeaths(Avatar.Possessor, 1);
             ScoreBoard.Instance.AddKills(senderID, 1);

@@ -40,7 +40,7 @@ public class RailGunProjectile : ProjectileBase
                 target.Damage(team, dmg, senderID);
 
             if (coinManager != null)
-                coinManager.HitByHitScan(dmg, team);
+                coinManager.HitByHitScan(dmg, team,senderID);
         }
 
         Destroy(gameObject);

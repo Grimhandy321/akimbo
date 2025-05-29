@@ -7,7 +7,7 @@ public class CoinManager : MonoBehaviour
 {
     public float healAmount = 10f;
 
-    public void HitByHitScan(float damage, Team shooterTeam)
+    public void HitByHitScan(float damage, Team shooterTeam,ushort senderId)
     {
 
         PlayerController target = FindClosestEnemy(shooterTeam);
@@ -15,14 +15,14 @@ public class CoinManager : MonoBehaviour
         if (testTarget != null) 
         {
             transform.position = testTarget.transform.position;
-            testTarget.Damage(shooterTeam, damage);
+            testTarget.Damage(shooterTeam, damage, senderId);
             HealShooter(shooterTeam, healAmount);
             Debug.Log("Target Hit");
         }
         if (target != null)
         {
             transform.position = target.transform.position;
-            target.Damage(shooterTeam, damage);
+            target.Damage(shooterTeam, damage, senderId);
             HealShooter(shooterTeam, healAmount);
             Destroy(gameObject);
         }

@@ -10,6 +10,7 @@ public partial class PlayerController : Synchronizable
     {
         if (!_isOwner) return;
         InitializeMovement();
+        InitializeWeapons();
         InitializeNetworking();
     }
 

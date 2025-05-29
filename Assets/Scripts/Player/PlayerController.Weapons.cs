@@ -9,7 +9,7 @@ public partial class PlayerController
     private void WeaponUpdate() 
     {
         HandleWeaponSwitch();
-        }
+    }
     private void InitializeWeapons() 
         {
         for (int i = 0; i < weapons.Length; i++)
