@@ -18,6 +18,7 @@ public partial class PlayerController : Synchronizable
     {
         if (_possesed && _isOwner)
         {
+            UpdateCoinThrowing();
             WeaponUpdate();
             HandleShooting();
             MovementUpdate();
