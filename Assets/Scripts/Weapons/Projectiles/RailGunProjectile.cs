@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class RailGunProjectile : ProjectileBase
 {
@@ -10,19 +11,29 @@ public class RailGunProjectile : ProjectileBase
     private Team team;
     private ushort senderID;
     private Collision collisionInfo;
+    private bool collisionEnabled = false;
 
-    public override void Fire(Vector3 position, Vector3 direction, Team teamm,ushort senderID)
+    public override void Fire(Vector3 position, Vector3 direction, Team teamm, ushort senderID)
     {
-        this.team = team;
+        this.team = teamm;
+        this.senderID = senderID;
 
         transform.position = position;
         transform.rotation = Quaternion.LookRotation(direction);
-        this.senderID = senderID;
 
         if (rb == null)
             rb = GetComponent<Rigidbody>();
 
         rb.velocity = direction * velocity;
+
+        collisionEnabled = false;
+        StartCoroutine(EnableCollisionAfterDelay(0.5f));
+    }
+
+    private IEnumerator EnableCollisionAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        collisionEnabled = true;
     }
 
     public override void Detonate()
@@ -38,14 +49,16 @@ public class RailGunProjectile : ProjectileBase
                 target.Damage(team, dmg, senderID);
 
             if (coinManager != null)
-                coinManager.HitByHitScan(dmg, team,senderID);
+                coinManager.HitByHitScan(dmg, team, senderID);
         }
 
-        Destroy(gameObject,lifeTime);
+        Destroy(gameObject, lifeTime);
     }
 
     private void OnCollisionEnter(Collision collision)
     {
+        if (!collisionEnabled) return;
+
         collisionInfo = collision;
         Detonate();
     }

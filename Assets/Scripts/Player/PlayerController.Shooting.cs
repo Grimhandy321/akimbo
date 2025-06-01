@@ -8,7 +8,7 @@ public partial class PlayerController
     public static Action shootInput;
     public void HandleShooting()
     {
-        weaponInstances[activeWeaponIndex].fireOrigin = gameObject.transform;
+        weaponInstances[activeWeaponIndex].fireOrigin = cam.transform;
         if (Input.GetMouseButton(0))
         {
             shootInput?.Invoke();

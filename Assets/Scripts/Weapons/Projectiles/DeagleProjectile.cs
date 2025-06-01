@@ -5,11 +5,6 @@ public class DeagleProjectile : ProjectileBase
     public float damage = 50f;
     public float range = 5000f;
 
-    public override void Detonate()
-    {
-        // Not used for hitscan
-    }
-
     public override void Fire(Vector3 origin, Vector3 direction, Team team, ushort senderId)
     {;
         if (Physics.Raycast(origin, direction, out RaycastHit hitInfo, range))
@@ -23,5 +18,6 @@ public class DeagleProjectile : ProjectileBase
             if (coinManager != null)
                 coinManager.HitByHitScan(damage, team, senderId);
         }
+        Destroy(gameObject);
     }
 }
