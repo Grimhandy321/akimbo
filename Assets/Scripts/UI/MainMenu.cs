@@ -18,12 +18,6 @@ namespace AlterunaFPS
 			SceneManager.LoadScene(sceneName);
 		}
 		
-		public void Quit()
-		{
-			EditorApplication.ExitPlaymode();
-			Application.Quit();
-		}
-
 		private void Awake()
 		{
 			Cursor.visible = true;
