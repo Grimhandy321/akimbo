@@ -37,6 +37,7 @@ public class ScoreBoardRow : MonoBehaviour
 
     public void UpdateScore(IScoreObject scoreObject)
     {
+
         object scoreObjValue = scoreObject.Get(ID);
 
         switch (scoreObject.Key)
