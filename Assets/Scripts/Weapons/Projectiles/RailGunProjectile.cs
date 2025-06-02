@@ -3,38 +3,32 @@ using System.Collections;
 
 public class RailGunProjectile : ProjectileBase
 {
-    public float dmg = 50f;
-    public float velocity = 1000f;
+    public float dmg = 10f;
+    public float velocity = 10000f;
     public float lifeTime = 5f;
 
     private Rigidbody rb;
     private Team team;
     private ushort senderID;
     private Collision collisionInfo;
-    private bool collisionEnabled = false;
 
     public override void Fire(Vector3 position, Vector3 direction, Team teamm, ushort senderID)
     {
         this.team = teamm;
         this.senderID = senderID;
+        float forwardOffset = 1.5f; 
+        Vector3 spawnPosition = position + direction.normalized * forwardOffset;
 
-        transform.position = position;
+        transform.position = spawnPosition;
         transform.rotation = Quaternion.LookRotation(direction);
 
         if (rb == null)
             rb = GetComponent<Rigidbody>();
 
-        rb.velocity = direction * velocity;
-
-        collisionEnabled = false;
-        StartCoroutine(EnableCollisionAfterDelay(0.5f));
+        rb.velocity = direction.normalized * velocity;
     }
 
-    private IEnumerator EnableCollisionAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        collisionEnabled = true;
-    }
+
 
     public override void Detonate()
     {
@@ -57,8 +51,6 @@ public class RailGunProjectile : ProjectileBase
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (!collisionEnabled) return;
-
         collisionInfo = collision;
         Detonate();
     }

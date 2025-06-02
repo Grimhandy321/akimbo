@@ -5,7 +5,8 @@ using Avatar = Alteruna.Avatar;
 
 public partial class PlayerController
 {
-    private Vector2 _lastPosition;
+
+    public GameObject hat;
     private bool _force;
     public bool _isOwner = true;
     public bool _isHost = false;
@@ -46,6 +47,12 @@ public partial class PlayerController
             SyncUpdate();
         }
     }
+    public void SetTeam(Team team)
+    {
+        playerTeam = team;
+        Commit();
+        UpdateTeamVisuals();
+    }
 
     public override void Serialize(ITransportStreamWriter processor, byte LOD, bool forceSync = false)
     {
@@ -53,22 +60,35 @@ public partial class PlayerController
         base.Serialize(processor, LOD, forceSync);
     }
 
-    public override void AssembleData(Writer writer, byte LOD = 100)
+    public override void DisassembleData(Reader reader, byte LOD)
     {
-        Vector3 p = transform.position;
-        byte flags = _force
-            ? (byte)255
-            : (byte)(
-                (Mathf.Abs(_lastPosition.x - p.x) + Mathf.Abs(_lastPosition.y - p.y) > 0.1f ? 4 : 0) |
-                (gameObject.activeSelf ? 16 | 4 : 0)
-            );
-
-        writer.Write(flags);
+        playerTeam = (Team)reader.ReadInt();
+        UpdateTeamVisuals();
     }
 
-    public override void DisassembleData(Reader reader, byte LOD = 100)
+    public override void AssembleData(Writer writer, byte LOD)
     {
-        byte flags = reader.ReadByte();
-        gameObject.SetActive((flags & 16) != 0);
+        writer.Write((int)playerTeam);
+    }
+
+    private void UpdateTeamVisuals()
+    {
+        Renderer rend = hat.GetComponent<Renderer>();
+        if (rend == null) return;
+        switch (playerTeam)
+        {
+            case Team.Red:
+                rend.material.color = Color.red;
+                break;
+            case Team.Blue:
+                rend.material.color = Color.blue;
+                break;
+            case Team.Neutral:
+                rend.material.color = Color.gray;
+                break;
+            default:
+                rend.material.color = Color.white;
+                break;
+        }
     }
 }

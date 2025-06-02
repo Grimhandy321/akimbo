@@ -3,59 +3,59 @@ using System.Collections.Generic;
 using UnityEngine;
 using Alteruna.Trinity;
 
-public class TeamManager : Synchronizable
+public class TeamManager : MonoBehaviour
 {
-    public static TeamManager Instance;
+    public Multiplayer multiplayer;
+    public GameObject teamPickerUI;
 
-    private Dictionary<ushort, Team> _teams = new();
+    private Team selectedTeam = Team.None;
 
-    private void Awake()
+    void Start()
     {
-        if (Instance == null)
-            Instance = this;
-        else
-            Destroy(gameObject);
+        teamPickerUI.SetActive(false);
     }
 
-    public void AssignTeam(ushort userID, Team team)
+    void OnConnected(User user)
     {
-        _teams[userID] = team;
-        Multiplayer.Sync(this, Reliability.Reliable);
+        teamPickerUI.SetActive(true);
     }
 
-    public Team GetTeam(ushort userID)
+    public void ChooseRedTeam()
     {
-        return _teams.TryGetValue(userID, out var team) ? team : Team.None;
+        selectedTeam = Team.Red;
+        teamPickerUI.SetActive(false);
+        SpawnAvatarAtTeamPoint();
     }
 
-    public List<ushort> GetTeamPlayers(Team team)
+    public void ChooseBlueTeam()
     {
-        var list = new List<ushort>();
-        foreach (var kvp in _teams)
-            if (kvp.Value == team)
-                list.Add(kvp.Key);
-        return list;
+        selectedTeam = Team.Blue;
+        teamPickerUI.SetActive(false);
+        SpawnAvatarAtTeamPoint();
     }
 
-    public override void AssembleData(Writer writer, byte LOD = 100)
+    void SpawnAvatarAtTeamPoint()
     {
-        writer.Write(_teams.Count);
-        foreach (var kvp in _teams)
+        int spawnIndex = -1;
+
+        if (selectedTeam == Team.Red)
         {
-            writer.Write(kvp.Key);
-            writer.Write((int)kvp.Value);
+ 
+            spawnIndex = Random.Range(0, 2);
         }
-    }
-
-    public override void DisassembleData(Reader reader, byte LOD = 100)
-    {
-        _teams.Clear();
-        int count = reader.ReadInt();
-        for (int i = 0; i < count; i++)
+        else if (selectedTeam == Team.Blue)
         {
-            ushort id = reader.ReadUshort();
-            Team team = (Team)reader.ReadInt();
-            _teams[id] = team;
+            spawnIndex = Random.Range(2, 4);
+        }
+
+        if (spawnIndex >= 0)
+        {
+            multiplayer.SpawnAvatar(multiplayer.AvatarSpawnLocations[spawnIndex]);
+        }
+        else
+        {
+            Debug.LogWarning("Invalid spawn index or team not selected.");
         }
     }
 }
+

@@ -27,6 +27,22 @@ public class CoinManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
+    public void HitByProjectile(Team shooterTeam, GameObject projectile)
+    {
+        PlayerController target = FindClosestEnemy(shooterTeam);
+        if (target != null)
+        {
+            projectile.transform.position = target.transform.position;
+
+            ProjectileBase pb = projectile.GetComponent<ProjectileBase>();
+            if (pb != null)
+            {
+                pb.Detonate();
+            }
+
+            Destroy(gameObject);
+        }
+    }
 
     private PlayerController FindClosestEnemy(Team team)
     {
