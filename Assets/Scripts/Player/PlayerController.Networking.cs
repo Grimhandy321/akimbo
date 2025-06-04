@@ -12,6 +12,8 @@ public partial class PlayerController
     public bool _isHost = false;
     private bool _offline;
     private bool _possesed;
+    private Vector3 _networkPosition;
+    private Quaternion _networkRotation;
 
     private void InitializeNetworking()
     {
@@ -47,6 +49,8 @@ public partial class PlayerController
             SyncUpdate();
         }
     }
+
+
     public void SetTeam(Team team)
     {
         playerTeam = team;

@@ -41,7 +41,14 @@ public partial class PlayerController : Synchronizable
             Cursor.visible = false;
         }
     }
-
+    private void LateUpdate()
+    {
+        if (!_isOwner && !_offline)
+        {
+            transform.position = Vector3.Lerp(transform.position, _networkPosition, Time.deltaTime * 10);
+            transform.rotation = Quaternion.Lerp(transform.rotation, _networkRotation, Time.deltaTime * 10);
+        }
+    }
     private void OnDisable()
     {
         Commit();
