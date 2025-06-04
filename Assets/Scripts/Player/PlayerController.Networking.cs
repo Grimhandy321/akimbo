@@ -64,20 +64,21 @@ public partial class PlayerController
         base.Serialize(processor, LOD, forceSync);
     }
 
+    public override void AssembleData(Writer writer, byte LOD)
+    {
+        writer.Write((int)playerTeam);
+        writer.Write(transform.position);
+        writer.Write(transform.rotation);
+        writer.Write(activeWeaponIndex);
+        UpdateTeamVisuals();
+    }
+
     public override void DisassembleData(Reader reader, byte LOD)
     {
         playerTeam = (Team)reader.ReadInt();
         _networkPosition = reader.ReadVector3();
         _networkRotation = reader.ReadQuaternion();
-        UpdateTeamVisuals();
-    }
-
-    public override void AssembleData(Writer writer, byte LOD)
-    {
-
-        writer.Write((int)playerTeam);
-        writer.Write(transform.position);
-        writer.Write(transform.rotation);
+        _networkWeaponIndex = reader.ReadInt();
         UpdateTeamVisuals();
     }
 

@@ -8,7 +8,11 @@ public partial class PlayerController
     private Gun[] weaponInstances; // Instantiated at runtime
 
     private int activeWeaponIndex = 0;
+    private int _networkWeaponIndex = 0;
     private Gun activeGun;
+
+    public Transform weaponHolder; // Ensure this is assigned in Inspector
+
     private void WeaponUpdate()
     {
         HandleWeaponSwitch();
