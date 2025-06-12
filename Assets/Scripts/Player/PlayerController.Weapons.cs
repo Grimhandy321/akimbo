@@ -11,7 +11,6 @@ public partial class PlayerController
     private int _networkWeaponIndex = 0;
     private Gun activeGun;
 
-    public Transform weaponHolder; // Ensure this is assigned in Inspector
 
     private void WeaponUpdate()
     {
@@ -24,7 +23,7 @@ public partial class PlayerController
 
         for (int i = 0; i < weaponPrefabs.Length; i++)
         {
-            weaponInstances[i] = Instantiate(weaponPrefabs[i], weaponHolder);
+            weaponInstances[i] = Instantiate(weaponPrefabs[i],weaponHolder);
             weaponInstances[i].gameObject.SetActive(i == activeWeaponIndex);
             weaponInstances[i].controller = this;
             weaponInstances[i].fireOrigin = Camera.main.transform;

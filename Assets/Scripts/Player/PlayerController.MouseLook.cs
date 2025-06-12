@@ -8,10 +8,7 @@ public partial class PlayerController
     public GameObject mesh;
     private float xRotation = 0f;
 
-    private void LateUpdate()
-    {
-        HandleMouseLook();
-    }
+
 
     private void HandleMouseLook()
     {

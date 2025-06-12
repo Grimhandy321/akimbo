@@ -86,6 +86,9 @@ public partial class PlayerController
     {
         Renderer rend = hat.GetComponent<Renderer>();
         if (rend == null) return;
+        if (!rend.material.name.Contains("(Instance)"))
+            rend.material = new Material(rend.material);
+
         switch (playerTeam)
         {
             case Team.Red:

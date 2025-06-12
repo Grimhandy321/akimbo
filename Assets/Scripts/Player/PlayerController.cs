@@ -23,6 +23,7 @@ public partial class PlayerController : Synchronizable
             HandleShooting();
             MovementUpdate();
             GrappleUpdate();
+            HandleMouseLook();
         }
     }
 
