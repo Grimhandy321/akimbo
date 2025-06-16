@@ -10,34 +10,44 @@ public class RailGunProjectile : ProjectileBase
     private Rigidbody rb;
     private Team team;
     private ushort senderID;
-    private Collision collisionInfo;
+
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
+        if (rb == null)
+            Debug.LogError("RailGunProjectile: Rigidbody is missing.");
+    }
 
     public override void Fire(Vector3 position, Vector3 direction, Team teamm, ushort senderID)
     {
         this.team = teamm;
         this.senderID = senderID;
-        float forwardOffset = 1.5f; 
-        Vector3 spawnPosition = position + direction.normalized * forwardOffset;
 
-        transform.position = spawnPosition;
+        Vector3 spawnPos = position + direction.normalized * 1.5f;
+        transform.position = spawnPos;
         transform.rotation = Quaternion.LookRotation(direction);
 
-        if (rb == null)
-            rb = GetComponent<Rigidbody>();
-
         rb.velocity = direction.normalized * velocity;
+
+        // Auto-detonate
+        Invoke(nameof(Detonate), lifeTime);
     }
 
-
-
-    public override void Detonate()
+    private void OnCollisionEnter(Collision collision)
     {
-        if (collisionInfo == null) return;
-        foreach (ContactPoint contact in collisionInfo.contacts)
+        if (hasDetonated) return;
+
+        hasDetonated = true;
+        DetonateInternal(collision);
+    }
+
+    private void DetonateInternal(Collision collision)
+    {
+        foreach (ContactPoint contact in collision.contacts)
         {
-            GameObject otherObject = contact.otherCollider.gameObject;
-            ITargetable target = otherObject.GetComponent<ITargetable>();
-            CoinManager coinManager = otherObject.GetComponent<CoinManager>();
+            GameObject hitObject = contact.otherCollider.gameObject;
+            ITargetable target = hitObject.GetComponent<ITargetable>();
+            CoinManager coinManager = hitObject.GetComponent<CoinManager>();
 
             if (target != null)
                 target.Damage(team, dmg, senderID);
@@ -46,18 +56,13 @@ public class RailGunProjectile : ProjectileBase
                 coinManager.HitByHitScan(dmg, team, senderID);
         }
 
-        Destroy(gameObject, lifeTime);
+        Destroy(gameObject);
     }
 
-    private void OnCollisionEnter(Collision collision)
+    public override void Detonate()
     {
-        collisionInfo = collision;
-        Detonate();
-    }
-
-    private void Start()
-    {
-        if (rb == null)
-            rb = GetComponent<Rigidbody>();
+        if (hasDetonated) return;
+        hasDetonated = true;
+        Destroy(gameObject);
     }
 }

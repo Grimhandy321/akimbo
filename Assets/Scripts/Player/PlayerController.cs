@@ -8,7 +8,7 @@ public partial class PlayerController : Synchronizable
 
     void Start()
     {
-        if (!_isOwner) return;
+        if (!Avatar.IsMe) return;
         InitializeMovement();
         InitializeWeapons();
         InitializeNetworking();
@@ -16,7 +16,7 @@ public partial class PlayerController : Synchronizable
 
     void Update()
     {
-        if (_possesed && _isOwner)
+        if (_possesed && Avatar.IsMe)
         {
             UpdateCoinThrowing();
             WeaponUpdate();
@@ -29,14 +29,14 @@ public partial class PlayerController : Synchronizable
 
     void FixedUpdate()
     {
-        if (!_isOwner) return;
+        if (!Avatar.IsMe) return;
         MovementFixedUpdate(); 
     }
 
     private void OnPossession()
     {
         InitializeHealth();
-        if (_isOwner)
+        if (Avatar.IsMe)
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
@@ -44,7 +44,7 @@ public partial class PlayerController : Synchronizable
     }
     private void LateUpdate()
     {
-        if (!_isOwner && !_offline)
+        if (!Avatar.IsMe && !_offline)
         {
             transform.position = Vector3.Lerp(transform.position, _networkPosition, Time.deltaTime * 10);
             transform.rotation = Quaternion.Lerp(transform.rotation, _networkRotation, Time.deltaTime * 10);

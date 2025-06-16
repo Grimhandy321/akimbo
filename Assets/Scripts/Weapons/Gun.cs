@@ -1,7 +1,6 @@
 using UnityEngine;
 using Alteruna;
 using Alteruna.Trinity;
-using static UnityEngine.UI.Image;
 
 public class Gun : MonoBehaviour
 {
@@ -30,7 +29,16 @@ public class Gun : MonoBehaviour
     {
         PlayerController.shootInput += Shoot;
         audioSource = gameObject.AddComponent<AudioSource>();
-        audioSource.clip = gundata?.shootsound;
+
+        if (gundata?.shootsound != null)
+        {
+            audioSource.clip = gundata.shootsound;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        PlayerController.shootInput -= Shoot;
     }
 
     private void Update()
@@ -38,7 +46,7 @@ public class Gun : MonoBehaviour
         timeSinceLastShot += Time.deltaTime;
     }
 
-    private bool CanShoot() => timeSinceLastShot > 1f / (gundata.fireRate / 60f);
+    private bool CanShoot() => timeSinceLastShot >= 60f / gundata.fireRate;
 
     public void Shoot()
     {
@@ -51,7 +59,11 @@ public class Gun : MonoBehaviour
 
             Vector3 pos = fireOrigin.position;
             Vector3 dir = fireOrigin.forward;
-            ushort senderID = (ushort)controller.Avatar.GetInstanceID();
+            ushort senderID = multiplayer.Me.Index;
+
+            //DEBUG LINE:
+            Debug.DrawRay(pos, dir * 1000f, Color.red, 1.5f);
+
             ProcedureParameters parameters = new ProcedureParameters();
             parameters.Set("team", (ushort)controller.playerTeam);
             parameters.Set("posX", pos.x);
@@ -61,7 +73,9 @@ public class Gun : MonoBehaviour
             parameters.Set("dirY", dir.y);
             parameters.Set("dirZ", dir.z);
             parameters.Set("senderID", senderID);
+
             multiplayer.InvokeRemoteProcedure("RPC_Shoot", UserId.All, parameters);
+
             FireLocal(controller.playerTeam, pos, dir, senderID);
         }
     }
@@ -105,7 +119,7 @@ public class Gun : MonoBehaviour
             Debug.LogWarning("Projectile prefab does not contain a ProjectileBase component.");
         }
 
-        if (audioSource && gundata.shootsound)
+        if (audioSource && audioSource.clip != null)
         {
             audioSource.Play();
         }

@@ -79,6 +79,7 @@ MonoBehaviour:
   gundata: {fileID: 11400000, guid: 293ffb4d9e3519c43a8c111aeacf36fa, type: 2}
   muzzle: {fileID: 1883379561824693373}
   controller: {fileID: 0}
+  fireOrigin: {fileID: 0}
 --- !u!1001 &6605472041899513321
 PrefabInstance:
   m_ObjectHideFlags: 0

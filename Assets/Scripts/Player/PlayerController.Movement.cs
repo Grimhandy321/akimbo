@@ -2,9 +2,9 @@ using UnityEngine;
 
 public partial class PlayerController
 {
-
     [Header("Player")]
     public Alteruna.Avatar Avatar;
+
     [Header("Movement")]
     public float moveSpeed = 15;
     public float jumpSpeed = 200;
@@ -20,11 +20,12 @@ public partial class PlayerController
     private Vector3 moveDirection;
     private Rigidbody rb;
     private bool canDoubleJump;
-    private bool canJump = true;
     private float groundDistance = 3f;
+
     [Header("Materials")]
     public Material blackMaterial;
     public Material greenMaterial;
+
     [Header("Wall Run")]
     public float wallMoveSpeed = 15;
     public float wallPullForce = 500;
@@ -37,6 +38,7 @@ public partial class PlayerController
     private RaycastHit leftWallHit, rightWallHit;
     private bool pulledToTheWall;
     private bool materialTurnedOriginal;
+
     [Header("Camera")]
     public Camera cam;
     public float camTilt;
@@ -45,14 +47,28 @@ public partial class PlayerController
 
     private void InitializeMovement()
     {
+
         rb = GetComponent<Rigidbody>();
-        rb.freezeRotation = true;
-        isGrounded = true;
+
+        if (Avatar.IsMe)
+        {
+            rb.isKinematic = false;
+            rb.freezeRotation = true;
+            rb.detectCollisions = true;
+            isGrounded = true;
+        }
+        else
+        {
+            rb.isKinematic = true;
+            rb.detectCollisions = true;
+        }
     }
+
+
 
     private void MovementUpdate()
     {
-        if (!_isOwner) return; 
+        if (!Avatar.IsMe) return;
         isGrounded = Physics.CheckSphere(transform.position - new Vector3(0, 3F, 0), groundDistance, groundMask);
         HandleMovementInput();
         Debug.DrawRay(transform.position, transform.right * wallDistance, Color.green);
@@ -72,7 +88,7 @@ public partial class PlayerController
 
     private void MovementFixedUpdate()
     {
-        if (!_isOwner) return; 
+        if (!Avatar.IsMe) return;
         MovePlayer();
         ApplyGravity();
     }
@@ -96,7 +112,6 @@ public partial class PlayerController
             StopWallRun();
         }
     }
-
 
     private void HandleMovementInput()
     {
@@ -127,6 +142,7 @@ public partial class PlayerController
         float speed = isGrounded ? 1 : airMultiplier;
         rb.AddForce(moveDirection.normalized * moveSpeed * movementMultiplier * speed, ForceMode.Acceleration);
     }
+
     private void CheckWall()
     {
         wallLeft = Physics.Raycast(transform.position, -transform.right, out leftWallHit, wallDistance, wallMask);
@@ -217,6 +233,7 @@ public partial class PlayerController
     {
         return true;
     }
+
     private void ChangeMaterials(MeshRenderer mr, Material newMat)
     {
         Material[] materials = mr.materials;
@@ -226,6 +243,4 @@ public partial class PlayerController
         }
         mr.materials = materials;
     }
-
-
 }
