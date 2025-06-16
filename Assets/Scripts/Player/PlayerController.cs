@@ -49,10 +49,7 @@ public partial class PlayerController : Synchronizable
             transform.position = Vector3.Lerp(transform.position, _networkPosition, Time.deltaTime * 10);
             transform.rotation = Quaternion.Lerp(transform.rotation, _networkRotation, Time.deltaTime * 10);
 
-            if (_networkWeaponIndex != activeWeaponIndex)
-            {
-                EquipWeapon(_networkWeaponIndex);
-            }
+            EquipWeapon(NetworkWeaponIndex); // volá se poøád
         }
     }
     private void OnDisable()

@@ -9,8 +9,6 @@ public partial class PlayerController : Synchronizable
     private Gun[] weaponInstances;
 
     [SynchronizableField]
-    private int _networkWeaponIndex = 0;
-
     private int activeWeaponIndex = 0;
     private Gun activeGun;
 
@@ -55,16 +53,12 @@ public partial class PlayerController : Synchronizable
         activeGun = weaponInstances[activeWeaponIndex];
         activeGun.gameObject.SetActive(true);
         activeGun.controller = this;
-
-        // Synchronizace sítě
-        _networkWeaponIndex = activeWeaponIndex;
-        // Zde můžeš přidat síťový sync, např. RPC volání, pokud používáš Alteruna k synchronizaci zbraní.
     }
 
     private void HandleWeaponSwitch()
     {
         if (weaponInstances == null || weaponInstances.Length == 0) return;
-..
+
         for (int i = 0; i < weaponInstances.Length; i++)
         {
             if (Input.GetKeyDown(KeyCode.Alpha1 + i))
