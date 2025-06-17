@@ -8,6 +8,4 @@ public class GunData : ScriptableObject
     public float fireRate;
     public AudioClip shootsound;
     public GameObject projectile;
-    public Transform gunOffset;
-
 }

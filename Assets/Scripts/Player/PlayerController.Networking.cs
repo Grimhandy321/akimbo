@@ -3,17 +3,14 @@ using Alteruna.Trinity;
 using UnityEngine;
 using Avatar = Alteruna.Avatar;
 
-public partial class PlayerController
+public partial class PlayerController : Synchronizable
 {
-
     public GameObject hat;
-    private bool _force;
+
     public bool _isOwner = true;
     public bool _isHost = false;
     private bool _offline;
-    private bool _possesed;
-    private Vector3 _networkPosition;
-    private Quaternion _networkRotation;
+    private bool _possessed;
 
     private void InitializeNetworking()
     {
@@ -28,12 +25,12 @@ public partial class PlayerController
         {
             _isOwner = Avatar.IsOwner;
             _isHost = Avatar.Possessor.IsHost;
-            _possesed = Avatar.IsPossessed;
+            _possessed = Avatar.IsPossessed;
 
             Avatar.OnPossessed.AddListener(_ =>
             {
                 _isOwner = Avatar.IsOwner;
-                _possesed = true;
+                _possessed = true;
                 OnPossession();
             });
 
@@ -50,40 +47,38 @@ public partial class PlayerController
         }
     }
 
-
     public void SetTeam(Team team)
     {
-        playerTeam = team;
-        Commit();
-        UpdateTeamVisuals();
-    }
+        if (!_isOwner) return;
 
-    public override void Serialize(ITransportStreamWriter processor, byte LOD, bool forceSync = false)
-    {
-        _force = forceSync;
-        base.Serialize(processor, LOD, forceSync);
+        if (playerTeam != team)
+        {
+            playerTeam = team;
+            Commit(); 
+            UpdateTeamVisuals(); 
+        }
     }
 
     public override void AssembleData(Writer writer, byte LOD)
     {
         writer.Write((int)playerTeam);
-        writer.Write(transform.position);
-        writer.Write(transform.rotation);
-        writer.Write(activeWeaponIndex);
-        UpdateTeamVisuals();
     }
 
     public override void DisassembleData(Reader reader, byte LOD)
     {
-        playerTeam = (Team)reader.ReadInt();
-        _networkPosition = reader.ReadVector3();
-        _networkRotation = reader.ReadQuaternion();
-        _networkWeaponIndex = reader.ReadInt();
-        UpdateTeamVisuals();
+        Team syncedTeam = (Team)reader.ReadInt();
+
+        if (playerTeam != syncedTeam)
+        {
+            playerTeam = syncedTeam;
+            UpdateTeamVisuals(); 
+        }
     }
 
     private void UpdateTeamVisuals()
     {
+        if (hat == null) return;
+
         Renderer rend = hat.GetComponent<Renderer>();
         if (rend == null) return;
         if (!rend.material.name.Contains("(Instance)"))

@@ -7,6 +7,7 @@ public partial class PlayerController : ITargetable
 {
     [Header("Health")]
     public float maxHealth = 100f;
+    [SynchronizableField]
     public float currentHealth;
     public Slider healthSlider;
 
@@ -21,6 +22,7 @@ public partial class PlayerController : ITargetable
 
     public void Damage(Team attackerTeam, float damage, ushort senderId)
     {
+        Debug.Log("team:" + attackerTeam + "dmg: " + damage + "sender:" + senderId);
         if (attackerTeam == playerTeam)
             return;
 
@@ -36,9 +38,9 @@ public partial class PlayerController : ITargetable
 
     void Die()
     {
-        if (_possesed)
+        if (_possessed)
         {
-            ScoreBoard.Instance.AddDeaths(Avatar.Possessor, 1);
+            ScoreBoard.Instance.AddDeaths(multiplayer.Me.Index, 1);
             ScoreBoard.Instance.AddKills(senderID, 1);
         }
 

@@ -4,8 +4,8 @@ using System.Collections;
 public class RailGunProjectile : ProjectileBase
 {
     public float dmg = 10f;
-    public float velocity = 10000f;
-    public float lifeTime = 5f;
+    public float velocity = 100f;
+    public float lifeTime = 5000f;
 
     private Rigidbody rb;
     private Team team;
@@ -38,7 +38,7 @@ public class RailGunProjectile : ProjectileBase
         if (hasDetonated) return;
 
         hasDetonated = true;
-        DetonateInternal(collision);
+       // DetonateInternal(collision);
     }
 
     private void DetonateInternal(Collision collision)

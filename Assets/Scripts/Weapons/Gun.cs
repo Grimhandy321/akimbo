@@ -57,8 +57,8 @@ public class Gun : MonoBehaviour
         {
             timeSinceLastShot = 0;
 
-            Vector3 pos = fireOrigin.position;
-            Vector3 dir = fireOrigin.forward;
+            Vector3 pos = controller.cam.transform.position;
+            Vector3 dir = controller.cam.transform.forward;
             ushort senderID = multiplayer.Me.Index;
 
             //DEBUG LINE:

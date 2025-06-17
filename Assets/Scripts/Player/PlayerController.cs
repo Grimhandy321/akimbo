@@ -10,13 +10,14 @@ public partial class PlayerController : Synchronizable
     {
         if (!Avatar.IsMe) return;
         InitializeMovement();
-        InitializeWeapons();
         InitializeNetworking();
+        InitializeWeapons();
+        InitializeHealth();
     }
 
     void Update()
     {
-        if (_possesed && Avatar.IsMe)
+        if (_possessed && Avatar.IsMe)
         {
             UpdateCoinThrowing();
             WeaponUpdate();
@@ -34,8 +35,7 @@ public partial class PlayerController : Synchronizable
     }
 
     private void OnPossession()
-    {
-        InitializeHealth();
+    {  
         if (Avatar.IsMe)
         {
             Cursor.lockState = CursorLockMode.Locked;
@@ -44,13 +44,7 @@ public partial class PlayerController : Synchronizable
     }
     private void LateUpdate()
     {
-        if (!Avatar.IsMe && !_offline)
-        {
-            transform.position = Vector3.Lerp(transform.position, _networkPosition, Time.deltaTime * 10);
-            transform.rotation = Quaternion.Lerp(transform.rotation, _networkRotation, Time.deltaTime * 10);
 
-            EquipWeapon(NetworkWeaponIndex); // volá se poøád
-        }
     }
     private void OnDisable()
     {
