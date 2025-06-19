@@ -321,9 +321,7 @@ MonoBehaviour:
   _isHost: 0
   playerTeam: 2
   weaponHolder: {fileID: 6073549888045920807}
-  weaponPrefabs:
-  - {fileID: 806660149980070936, guid: 66dc5dde00394454ea4c4b4e7c50445b, type: 3}
-  - {fileID: 8725875699981828458, guid: 00a8aff236af1ef478f44db17c5d78dc, type: 3}
+  weaponPrefabs: []
 --- !u!114 &8182405661403243369
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -38,7 +38,7 @@ public class RailGunProjectile : ProjectileBase
         if (hasDetonated) return;
 
         hasDetonated = true;
-       // DetonateInternal(collision);
+        DetonateInternal(collision);
     }
 
     private void DetonateInternal(Collision collision)

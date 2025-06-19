@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AlterunaFPS;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
@@ -9,7 +10,7 @@ public partial class PlayerController : ITargetable
     public float maxHealth = 100f;
     [SynchronizableField]
     public float currentHealth;
-    public Slider healthSlider;
+
 
     private int _lastSpawnIndex = 0;
     private ushort senderID = 0;
@@ -17,17 +18,15 @@ public partial class PlayerController : ITargetable
     private void InitializeHealth()
     {
         currentHealth = maxHealth;
-        UpdateHealthUI();
+        ShowHp.UpdateHealthUI(currentHealth);
     }
 
     public void Damage(Team attackerTeam, float damage, ushort senderId)
     {
         Debug.Log("team:" + attackerTeam + "dmg: " + damage + "sender:" + senderId);
-        if (attackerTeam == playerTeam)
-            return;
 
         currentHealth -= damage;
-        UpdateHealthUI();
+        ShowHp.UpdateHealthUI(currentHealth);
 
         if (currentHealth <= 0f)
         {
@@ -45,7 +44,7 @@ public partial class PlayerController : ITargetable
         }
 
         currentHealth = maxHealth;
-        UpdateHealthUI();
+        ShowHp.UpdateHealthUI(currentHealth);
 
         int spawnIndex = 0;
         int spawnLocationsCount = Multiplayer.AvatarSpawnLocations.Count;
@@ -66,19 +65,21 @@ public partial class PlayerController : ITargetable
         }
 
         transform.position = Multiplayer.AvatarSpawnLocations[spawnIndex].position;
+
+        Transform spawn = Multiplayer.AvatarSpawnLocations.Count > 0 ?Multiplayer.AvatarSpawnLocations[spawnIndex] :Multiplayer.AvatarSpawnLocation;
+
+        gameObject.SetActive(false);
+        transform.position = spawn.position;
+        transform.rotation = spawn.rotation;
+        gameObject.SetActive(false);
+
+        RespawnController.Respawn(gameObject);
     }
 
     public void Heal(float amount)
     {
         currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
-        UpdateHealthUI();
+        ShowHp.UpdateHealthUI(currentHealth);
     }
 
-    private void UpdateHealthUI()
-    {
-        if (healthSlider != null)
-        {
-            healthSlider.value = currentHealth;
-        }
-    }
 }

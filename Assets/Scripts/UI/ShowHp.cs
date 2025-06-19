@@ -1,18 +1,24 @@
+using AlterunaFPS;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ShowHp : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public static ShowHp Instance { get; private set; }
+    public static Slider healthSlider;
 
-    // Update is called once per frame
-    void Update()
+    private void Awake()
     {
-        
+        Instance = this;
+        gameObject.SetActive(true);
+    }
+    public static void UpdateHealthUI(float hp)
+    {
+        if (healthSlider != null)
+        {
+            healthSlider.value = hp;
+        }
     }
 }

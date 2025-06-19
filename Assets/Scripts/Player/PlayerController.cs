@@ -13,6 +13,7 @@ public partial class PlayerController : Synchronizable
         InitializeNetworking();
         InitializeWeapons();
         InitializeHealth();
+        InitializeUI();
     }
 
     void Update()

@@ -7,9 +7,7 @@ public class Gun : MonoBehaviour
     [SerializeField] private GunData gundata;
     public Transform muzzle;
     private float timeSinceLastShot;
-    private AudioSource audioSource;
     public PlayerController controller;
-    public Transform fireOrigin;
     private Multiplayer multiplayer;
 
     private void Awake()
@@ -23,22 +21,6 @@ public class Gun : MonoBehaviour
         {
             multiplayer.RegisterRemoteProcedure("RPC_Shoot", RPC_Shoot);
         }
-    }
-
-    private void Start()
-    {
-        PlayerController.shootInput += Shoot;
-        audioSource = gameObject.AddComponent<AudioSource>();
-
-        if (gundata?.shootsound != null)
-        {
-            audioSource.clip = gundata.shootsound;
-        }
-    }
-
-    private void OnDestroy()
-    {
-        PlayerController.shootInput -= Shoot;
     }
 
     private void Update()
@@ -119,9 +101,10 @@ public class Gun : MonoBehaviour
             Debug.LogWarning("Projectile prefab does not contain a ProjectileBase component.");
         }
 
-        if (audioSource && audioSource.clip != null)
+        if (gundata.shootsound != null)
         {
-            audioSource.Play();
+            AudioSource.PlayClipAtPoint(gundata.shootsound, controller.transform.position);
+
         }
     }
 }

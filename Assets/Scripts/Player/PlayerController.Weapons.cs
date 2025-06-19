@@ -4,61 +4,73 @@ using Alteruna;
 
 public partial class PlayerController : Synchronizable
 {
-    [Header("Weapon Switching")]
-    public Gun[] weaponPrefabs;
+
+
     private Gun[] weaponInstances;
 
     [SynchronizableField]
     private int activeWeaponIndex = 0;
-    private Gun activeGun;
 
+    private Gun activeGun;
 
     private void InitializeWeapons()
     {
-        if (weaponPrefabs == null || weaponPrefabs.Length == 0)
+        if (weaponHolder == null || weaponHolder.childCount == 0)
         {
-            Debug.LogWarning("No weapon prefabs assigned!");
+            Debug.LogWarning("no gun");
             return;
         }
 
-        weaponInstances = new Gun[weaponPrefabs.Length];
+        weaponInstances = new Gun[weaponHolder.childCount];
 
-        for (int i = 0; i < weaponPrefabs.Length; i++)
+        for (int i = 0; i < weaponHolder.childCount; i++)
         {
-            weaponInstances[i] = Instantiate(weaponPrefabs[i], weaponHolder);
-            weaponInstances[i].transform.localPosition = Vector3.zero;
-            weaponInstances[i].transform.localRotation = Quaternion.identity;
+            Transform child = weaponHolder.GetChild(i);
+            Gun gun = child.GetComponent<Gun>();
 
-            weaponInstances[i].gameObject.SetActive(i == activeWeaponIndex);
-            weaponInstances[i].controller = this;
+            if (gun == null)
+            {
+                Debug.LogWarning($"{i} not Gun component.");
+                continue;
+            }
 
-            if (Camera.main != null)
-                weaponInstances[i].fireOrigin = Camera.main.transform;
-            else
-                Debug.LogWarning("Camera.main not found! FireOrigin not set.");
+            weaponInstances[i] = gun;
+            gun.controller = this;
         }
 
-        activeGun = weaponInstances[activeWeaponIndex];
+        SetActiveWeapon(activeWeaponIndex);
     }
 
     private void EquipWeapon(int index)
     {
-        if (index == activeWeaponIndex || index < 0 || index >= weaponInstances.Length)
+        if (weaponInstances == null || index == activeWeaponIndex || index < 0 || index >= weaponInstances.Length)
             return;
 
-        if (activeGun != null)
-            activeGun.gameObject.SetActive(false);
+        SetActiveWeapon(index);
+
+        if (Avatar.IsMe)
+        {
+            activeWeaponIndex = index;
+            Commit(); 
+        }
+    }
+
+    private void SetActiveWeapon(int index)
+    {
+        for (int i = 0; i < weaponInstances.Length; i++)
+        {
+            if (weaponInstances[i] != null)
+                weaponInstances[i].gameObject.SetActive(i == index);
+        }
 
         activeWeaponIndex = index;
         activeGun = weaponInstances[activeWeaponIndex];
-        activeGun.gameObject.SetActive(true);
-        activeGun.controller = this;
     }
 
     private void HandleWeaponSwitch()
     {
-        if (weaponInstances == null || weaponInstances.Length == 0) return;
-
+        if (weaponInstances == null || weaponInstances.Length == 0)
+            return;
         for (int i = 0; i < weaponInstances.Length; i++)
         {
             if (Input.GetKeyDown(KeyCode.Alpha1 + i))
@@ -81,15 +93,18 @@ public partial class PlayerController : Synchronizable
 
     private void WeaponUpdate()
     {
+        if (!Avatar.IsMe) return; 
         HandleWeaponSwitch();
     }
 
     public Gun ActiveGun => activeGun;
+
     public void SyncWeaponIndex(int newIndex)
     {
         if (newIndex != activeWeaponIndex)
         {
-            EquipWeapon(newIndex);
+            SetActiveWeapon(newIndex);
         }
     }
+
 }
