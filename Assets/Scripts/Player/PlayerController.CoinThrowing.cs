@@ -22,7 +22,7 @@ public partial class PlayerController
         }
         else
         {
-            Debug.LogError("Multiplayer component not found");
+            Debug.LogError("Multiplayer not found");
         }
     }
 

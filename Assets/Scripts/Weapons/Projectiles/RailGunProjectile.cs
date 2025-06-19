@@ -29,7 +29,8 @@ public class RailGunProjectile : ProjectileBase
 
         rb.velocity = direction.normalized * velocity;
 
-        // Auto-detonate
+        StartCoroutine(EnableColliderAfterDelay(0.1f));
+
         Invoke(nameof(Detonate), lifeTime);
     }
 
@@ -57,6 +58,12 @@ public class RailGunProjectile : ProjectileBase
         }
 
         Destroy(gameObject);
+    }
+
+    private IEnumerator EnableColliderAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        hasDetonated = false;
     }
 
     public override void Detonate()

@@ -30,8 +30,13 @@ public class Gun : MonoBehaviour
 
     private bool CanShoot() => timeSinceLastShot >= 60f / gundata.fireRate;
 
-    public void Shoot()
+
+    
+
+
+    public void Shoot(ushort senderID)
     {
+        Debug.Log("me:" + multiplayer.Me.Index + "dmg: " + senderID);
         if (!controller._isOwner || gundata == null || gundata.projectile == null)
             return;
 
@@ -41,10 +46,10 @@ public class Gun : MonoBehaviour
 
             Vector3 pos = controller.cam.transform.position;
             Vector3 dir = controller.cam.transform.forward;
-            ushort senderID = multiplayer.Me.Index;
+
 
             //DEBUG LINE:
-            Debug.DrawRay(pos, dir * 1000f, Color.red, 1.5f);
+            Debug.DrawRay(pos, dir, Color.red, 1.5f);
 
             ProcedureParameters parameters = new ProcedureParameters();
             parameters.Set("team", (ushort)controller.playerTeam);
@@ -88,8 +93,7 @@ public class Gun : MonoBehaviour
     {
         if (gundata?.projectile == null)
             return;
-
-        GameObject projectileInstance = Instantiate(gundata.projectile, pos, Quaternion.LookRotation(dir));
+        GameObject projectileInstance = Instantiate(gundata.projectile,pos, Quaternion.LookRotation(dir));
         ProjectileBase projectile = projectileInstance.GetComponent<ProjectileBase>();
 
         if (projectile != null)

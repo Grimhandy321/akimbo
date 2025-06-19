@@ -23,8 +23,6 @@ public partial class PlayerController : ITargetable
 
     public void Damage(Team attackerTeam, float damage, ushort senderId)
     {
-        Debug.Log("team:" + attackerTeam + "dmg: " + damage + "sender:" + senderId);
-
         currentHealth -= damage;
         ShowHp.Instance.UpdateHealthUI(currentHealth);
 

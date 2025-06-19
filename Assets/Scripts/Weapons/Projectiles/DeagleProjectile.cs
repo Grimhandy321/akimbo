@@ -7,8 +7,8 @@ public class DeagleProjectile : ProjectileBase
 
     public override void Fire(Vector3 origin, Vector3 direction, Team team, ushort senderId)
     {
+        hasDetonated = false;
         if (hasDetonated) return;
-        hasDetonated = true;
 
         Team = team;
         SenderId = senderId;

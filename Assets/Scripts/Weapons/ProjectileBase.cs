@@ -4,7 +4,7 @@ public abstract class ProjectileBase : MonoBehaviour
 {
     public Team Team { get; protected set; }
     public ushort SenderId { get; protected set; }
-    protected bool hasDetonated = false;
+    protected bool hasDetonated = true;
 
     public abstract void Fire(Vector3 position, Vector3 direction, Team team, ushort senderId);
 

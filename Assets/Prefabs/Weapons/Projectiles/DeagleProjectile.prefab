@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6300383655408759480}
   - component: {fileID: 2752768481380390729}
-  - component: {fileID: 1095682303655992035}
   m_Layer: 0
   m_Name: DeagleProjectile
   m_TagString: Untagged
@@ -47,38 +46,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   damage: 50
   range: 5000
---- !u!114 &1095682303655992035
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5720413860645573470}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1312809854, guid: 0ae8d181602a00248a82f64a684a1c88, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Multiplayer: {fileID: 0}
-  _uidString: 050a6489-11c9-4700-870a-fa73d7ad2ca5
-  BucketBehaviors:
-  - Name: Min
-    NetLOD: 0
-    Frequency: -1
-  - Name: Low
-    NetLOD: 1
-    Frequency: 0
-  - Name: Mid
-    NetLOD: 2
-    Frequency: 0
-  - Name: High
-    NetLOD: 3
-    Frequency: 0
-  - Name: Max
-    NetLOD: 4
-    Frequency: 120
-  Reliability: 2
-  UseGlobalPosition: 0
-  OnlySyncFromRoomOwner: 0
-  refreshRate: 30
-  SyncedAxes: 511
