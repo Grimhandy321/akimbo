@@ -16,15 +16,12 @@ public class TeamSelectorUI : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        gameObject.SetActive(false);
+        uiPanel.SetActive(true);
     }
 
     void Start()
     {
         uiPanel.SetActive(false);
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-
         redButton.onClick.AddListener(() => ChooseTeam(Team.Red));
         blueButton.onClick.AddListener(() => ChooseTeam(Team.Blue));
     }

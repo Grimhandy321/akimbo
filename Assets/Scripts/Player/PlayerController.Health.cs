@@ -18,7 +18,7 @@ public partial class PlayerController : ITargetable
     private void InitializeHealth()
     {
         currentHealth = maxHealth;
-        ShowHp.UpdateHealthUI(currentHealth);
+        ShowHp.Instance.UpdateHealthUI(currentHealth);
     }
 
     public void Damage(Team attackerTeam, float damage, ushort senderId)
@@ -26,7 +26,7 @@ public partial class PlayerController : ITargetable
         Debug.Log("team:" + attackerTeam + "dmg: " + damage + "sender:" + senderId);
 
         currentHealth -= damage;
-        ShowHp.UpdateHealthUI(currentHealth);
+        ShowHp.Instance.UpdateHealthUI(currentHealth);
 
         if (currentHealth <= 0f)
         {
@@ -44,7 +44,7 @@ public partial class PlayerController : ITargetable
         }
 
         currentHealth = maxHealth;
-        ShowHp.UpdateHealthUI(currentHealth);
+        ShowHp.Instance.UpdateHealthUI(currentHealth);
 
         int spawnIndex = 0;
         int spawnLocationsCount = Multiplayer.AvatarSpawnLocations.Count;
@@ -79,7 +79,7 @@ public partial class PlayerController : ITargetable
     public void Heal(float amount)
     {
         currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
-        ShowHp.UpdateHealthUI(currentHealth);
+        ShowHp.Instance.UpdateHealthUI(currentHealth);
     }
 
 }
