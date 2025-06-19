@@ -4,7 +4,7 @@ using System.Collections;
 public class RailGunProjectile : ProjectileBase
 {
     public float dmg = 10f;
-    public float velocity = 100f;
+    public float velocity = 10000f;
     public float lifeTime = 5000f;
 
     private Rigidbody rb;
